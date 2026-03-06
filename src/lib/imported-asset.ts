@@ -61,6 +61,7 @@ export interface Asset {
   purchaseDate: string
   dateAcquired: string
   assignedTo: string | null
+  assignedToId?: string | null
   department: string
   condition?: string
   transferMethod?: string

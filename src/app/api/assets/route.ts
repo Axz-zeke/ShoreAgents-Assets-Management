@@ -1,5 +1,36 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
+import { z } from "zod"
+
+const assetSchema = z.object({
+  name: z.string().min(1, "Asset name is required"),
+  asset_tag_id: z.string().min(1, "Asset Tag ID is required"),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  sub_category: z.string().optional(),
+  location: z.string().optional(),
+  site: z.string().optional(),
+  status: z.enum(["Available", "In Use", "Move", "Reserved", "Disposed", "Maintenance"]).optional().default("Available"),
+  cost: z.number().optional().default(0),
+  purchase_date: z.string().optional().nullable(),
+  date_acquired: z.string().optional().nullable(),
+  assigned_to: z.string().optional().nullable(),
+  assigned_to_id: z.string().uuid().optional().nullable(),
+  department: z.string().optional(),
+  brand: z.string().optional(),
+  model: z.string().optional(),
+  serial_number: z.string().optional(),
+  manufacturer: z.string().optional(),
+  notes: z.string().optional(),
+  floor: z.string().optional(),
+  condition: z.string().optional(),
+  transfer_method: z.string().optional(),
+  authorized_by: z.string().optional(),
+  asset_type: z.string().optional(),
+  image_url: z.string().optional(),
+  image_file_name: z.string().optional(),
+  qr_url: z.string().optional()
+})
 
 export const dynamic = "force-dynamic"
 
@@ -72,42 +103,21 @@ export async function POST(request: NextRequest) {
     const supabase = supabaseAdmin
     const body = await request.json()
 
-    // Validate required fields
-    const requiredFields = ["name", "asset_tag_id"]
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 })
-      }
+    // Validate with Zod
+    const result = assetSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({
+        error: "Validation error",
+        details: result.error.issues.map(i => i.message).join(", ")
+      }, { status: 400 })
     }
+
+    const validatedData = result.data
 
     // Prepare asset data
     const assetData = {
-      name: body.name,
-      description: body.description || "",
-      asset_tag_id: body.asset_tag_id,
-      category: body.category || "",
-      sub_category: body.sub_category || body.subCategory || "",
-      location: body.location || "",
-      site: body.site || "",
-      status: body.status || "Available",
-      cost: body.cost || body.value || 0,
-      purchase_date: body.purchase_date || body.purchaseDate || null,
-      date_acquired: body.date_acquired || body.dateAcquired || null,
-      assigned_to: body.assigned_to || body.assignedTo || "",
-      department: body.department || "",
-      brand: body.brand || "",
-      model: body.model || "",
-      serial_number: body.serial_number || body.serialNumber || "",
-      manufacturer: body.manufacturer || "",
-      notes: body.notes || "",
-      floor: body.floor || "",
-      condition: body.condition || "",
-      transfer_method: body.transfer_method || body.transferMethod || "",
-      authorized_by: body.authorized_by || body.authorizedBy || "",
-      asset_type: body.asset_type || body.assetType || "",
-      image_url: body.image_url || body.imageUrl || "",
-      image_file_name: body.image_file_name || body.imageFileName || "",
-      qr_url: body.qr_url || body.qrUrl || ""
+      ...validatedData,
+      // Ensure specific fields if needed
     }
 
     const { data: asset, error } = await supabase

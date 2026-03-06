@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Asset } from "@/lib/lists-data"
 import { useInstantAssets } from "@/hooks/use-instant-assets"
+import { useEmployees } from "@/hooks/use-employees"
 import { useUpdateAsset } from "@/hooks/use-assets-query"
 import { useSystemSettings } from "@/contexts/system-settings-context"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -209,6 +210,7 @@ const mockPersons = {
 
 export default function AssetsPage() {
   const { data: assets = [], isLoading, error } = useInstantAssets()
+  const { data: employees = [] } = useEmployees()
   const updateAssetMutation = useUpdateAsset()
   const { formatCurrency, formatDate, formatDateTime } = useSystemSettings()
   const [searchTerm, setSearchTerm] = React.useState("")
@@ -819,11 +821,27 @@ export default function AssetsPage() {
 
 
   // Get assets assigned to the selected person
-  const getPersonAssets = (personName: string) => {
-    return assets.filter(asset => asset.assignedTo === personName)
+  const getPersonAssets = (personId: string) => {
+    return assets.filter(asset => asset.assignedToId === personId || asset.assignedTo === personId)
   }
 
-  const selectedPersonData = selectedPerson ? mockPersons[selectedPerson as keyof typeof mockPersons] : null
+  const selectedEmployee = employees.find(e => e.id === selectedPerson || e.employee_id === selectedPerson)
+
+  const selectedPersonData = React.useMemo(() => {
+    if (selectedEmployee) {
+      return {
+        name: `${selectedEmployee.first_name} ${selectedEmployee.last_name}`,
+        email: selectedEmployee.email || 'N/A',
+        phone: 'N/A', // No phone in employees schema yet
+        department: selectedEmployee.department || 'N/A',
+        position: selectedEmployee.job_title || 'N/A',
+        location: 'N/A', // No location in employees schema yet
+        employeeId: selectedEmployee.employee_id,
+      }
+    }
+    return selectedPerson ? (mockPersons as any)[selectedPerson] : null
+  }, [selectedEmployee, selectedPerson])
+
   const personAssets = selectedPerson ? getPersonAssets(selectedPerson) : []
 
   return (
@@ -1354,20 +1372,22 @@ export default function AssetsPage() {
                                     case 'id':
                                       return <span className="font-mono text-muted-foreground text-sm">{asset.id}</span>
                                     case 'assignedTo':
-                                      return asset.assignedTo && mockPersons[asset.assignedTo as keyof typeof mockPersons] ? (
+                                      const employee = asset.assignedToId ? employees.find(e => e.id === asset.assignedToId) : null;
+                                      const displayName = employee ? `${employee.first_name} ${employee.last_name}` : asset.assignedTo;
+                                      const clickId = asset.assignedToId || asset.assignedTo;
+
+                                      return clickId ? (
                                         <button
                                           onClick={(e) => {
                                             e.stopPropagation()
-                                            handlePersonClick(asset.assignedTo!)
+                                            handlePersonClick(clickId)
                                           }}
                                           className="text-blue-500 font-medium hover:underline"
                                         >
-                                          {asset.assignedTo}
+                                          {displayName || "Unassigned"}
                                         </button>
                                       ) : (
-                                        <span className="text-blue-500 font-medium hover:underline">
-                                          {asset.assignedTo || "Unassigned"}
-                                        </span>
+                                        <span className="text-muted-foreground italic">Unassigned</span>
                                       )
                                     case 'status':
                                       return (
@@ -1495,18 +1515,18 @@ export default function AssetsPage() {
                       </div>
 
                       <div className="flex items-start gap-3 sm:gap-4">
-                        <Phone className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                        <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm sm:text-base">Department</p>
-                          <p className="text-xs sm:text-sm text-muted-foreground break-words">{selectedPersonData.department}</p>
+                          <p className="font-semibold text-sm sm:text-base">Position</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground break-words">{selectedPersonData.position}</p>
                         </div>
                       </div>
 
                       <div className="flex items-start gap-3 sm:gap-4">
                         <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm sm:text-base">Location</p>
-                          <p className="text-xs sm:text-sm text-muted-foreground break-words">{selectedPersonData.location}</p>
+                          <p className="font-semibold text-sm sm:text-base">Department</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground break-words">{selectedPersonData.department}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -1840,12 +1860,48 @@ export default function AssetsPage() {
                         <div className="space-y-1">
                           <p className="text-xs font-medium text-muted-foreground">Assigned To</p>
                           {isEditing ? (
-                            <Input
-                              value={editedAsset?.assignedTo || ''}
-                              onChange={(e) => handleFieldChange('assignedTo', e.target.value)}
-                              className="text-sm h-8"
-                              placeholder="Enter assigned person"
-                            />
+                            <Select
+                              value={editedAsset?.assignedToId || "unassigned"}
+                              onValueChange={(value) => {
+                                if (value === "unassigned") {
+                                  setEditedAsset(prev => prev ? { ...prev, assignedToId: null, assignedTo: "" } : null);
+                                } else {
+                                  const employee = employees.find(e => e.id === value);
+                                  if (employee) {
+                                    setEditedAsset(prev => prev ? {
+                                      ...prev,
+                                      assignedToId: employee.id,
+                                      assignedTo: `${employee.first_name} ${employee.last_name}`
+                                    } : null);
+                                  }
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="text-sm h-8">
+                                <SelectValue placeholder="Select employee" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="unassigned">Unassigned</SelectItem>
+                                {employees.map((employee) => (
+                                  <SelectItem key={employee.id} value={employee.id}>
+                                    {employee.first_name} {employee.last_name} ({employee.employee_id})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : selectedAsset.assignedToId ? (
+                            <button
+                              onClick={() => {
+                                setIsAssetDetailsOpen(false)
+                                handlePersonClick(selectedAsset.assignedToId!)
+                              }}
+                              className="text-green-600 hover:text-green-800 hover:underline font-medium text-sm transition-colors text-left"
+                            >
+                              {(() => {
+                                const emp = employees.find(e => e.id === selectedAsset.assignedToId);
+                                return emp ? `${emp.first_name} ${emp.last_name}` : selectedAsset.assignedTo;
+                              })()}
+                            </button>
                           ) : selectedAsset.assignedTo ? (
                             <button
                               onClick={() => {

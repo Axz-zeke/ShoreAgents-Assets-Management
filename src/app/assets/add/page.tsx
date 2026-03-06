@@ -252,6 +252,18 @@ export default function AddAssetPage() {
         dataType: 'Text'
       },
       {
+        id: 'assigned-to-id',
+        name: 'assignedToId',
+        type: 'text',
+        label: 'Assigned To ID',
+        description: 'Employee Internal ID',
+        required: false,
+        included: true,
+        placeholder: 'Automated field',
+        isStandard: false,
+        dataType: 'Text'
+      },
+      {
         id: 'purchase-date',
         name: 'purchaseDate',
         type: 'date',
@@ -415,12 +427,13 @@ export default function AddAssetPage() {
   React.useEffect(() => {
     const fetchSetupData = async () => {
       try {
-        const [cats, locs, sites, subCats, depts] = await Promise.all([
+        const [cats, locs, sites, subCats, depts, emps] = await Promise.all([
           fetch('/api/setup/categories').then(res => res.json()),
           fetch('/api/setup/locations').then(res => res.json()),
           fetch('/api/setup/sites').then(res => res.json()),
           fetch('/api/setup/sub-categories').then(res => res.json()),
           fetch('/api/setup/departments').then(res => res.json()),
+          fetch('/api/setup/employees').then(res => res.json()),
         ])
 
         if (cats.success) setApiCategories(cats.data)
@@ -428,9 +441,14 @@ export default function AddAssetPage() {
         if (sites.success) setApiSites(sites.data)
         if (subCats.success) setApiSubCategories(subCats.data)
         if (depts.success) setApiDepartments(depts.data)
+        if (emps.success) {
+          const mappedEmps = emps.data.map((e: any) => ({
+            ...e,
+            name: `${e.first_name} ${e.last_name}`
+          }))
+          setApiEmployees(mappedEmps)
+        }
 
-        // For employees and manufacturers, fallback to legacy if needed
-        setApiEmployees(setupDataManager.getEmployees())
         setApiManufacturers(setupDataManager.getManufacturers())
       } catch (error) {
         console.error('Error fetching setup data:', error)
@@ -1199,6 +1217,7 @@ export default function AddAssetPage() {
         department: String(data.department || ''),
         status: "Available" as const,
         assignedTo: String(data.assignedTo || ''),
+        assignedToId: String(data.assignedToId || ''),
         assetType: String(data.assetType || ''),
         notes: String(data.notes || ''),
         imageUrl: imageUrl,
@@ -1738,9 +1757,11 @@ export default function AddAssetPage() {
                         )
 
                         if (matchingEmployee && value === matchingEmployee.name) {
-                          formField.onChange(matchingEmployee.id)
+                          formField.onChange(matchingEmployee.name)
+                          form.setValue('assignedToId', matchingEmployee.id)
                         } else {
-                          formField.onChange("")
+                          formField.onChange(value)
+                          form.setValue('assignedToId', "")
                         }
                       }}
                       className="w-full"

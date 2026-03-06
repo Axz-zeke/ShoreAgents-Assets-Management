@@ -106,6 +106,22 @@ const SETUP_ITEMS = [
     descHover: "group-hover:text-teal-500 dark:group-hover:text-teal-400",
     titleHover: "group-hover:text-teal-600 dark:group-hover:text-teal-400",
   },
+  {
+    title: "Employees",
+    description: "Manage company employees, assign assets, and define roles",
+    href: "/setup/employees",
+    icon: Users,
+    color: "indigo",
+    bgLight: "bg-indigo-100",
+    bgDark: "dark:bg-indigo-900",
+    bgHoverLight: "group-hover:bg-indigo-200",
+    bgHoverDark: "dark:group-hover:bg-indigo-800",
+    textColor: "text-indigo-600 dark:text-indigo-400",
+    shadowColor: "hover:shadow-indigo-500/20",
+    btnHover: "group-hover:bg-indigo-600",
+    descHover: "group-hover:text-indigo-500 dark:group-hover:text-indigo-400",
+    titleHover: "group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
+  },
 ]
 
 export default function SetupPage() {

@@ -274,6 +274,11 @@ const data = {
           url: "/setup/departments",
           icon: Users,
         },
+        {
+          title: "Employees",
+          url: "/setup/employees",
+          icon: Users,
+        },
       ],
     },
 

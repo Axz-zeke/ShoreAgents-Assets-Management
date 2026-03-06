@@ -20,6 +20,7 @@ export interface Asset {
   department?: string
   status?: 'Available' | 'Check Out' | 'Move' | 'Reserve' | 'Dispose' | 'Maintenance'
   assigned_to?: string
+  assigned_to_id?: string
   asset_type?: string
   notes?: string
   image_url?: string
@@ -47,6 +48,7 @@ export interface CreateAssetData {
   department?: string
   status?: 'Available' | 'Check Out' | 'Move' | 'Reserve' | 'Dispose' | 'Maintenance'
   assignedTo?: string
+  assignedToId?: string
   assetType?: string
   notes?: string
   imageUrl?: string
