@@ -11,11 +11,17 @@ const supabaseAdmin = createClient(
 const employeeSchema = z.object({
     employee_id: z.string().min(1, 'Employee ID is required'),
     first_name: z.string().min(1, 'First name is required'),
+    middle_name: z.string().optional().nullable(),
     last_name: z.string().min(1, 'Last name is required'),
-    email: z.any(),
+    email: z.string().optional().nullable().or(z.literal('')),
     job_title: z.string().optional().nullable(),
     department: z.string().optional().nullable(),
     role: z.string().optional().default('Employee'),
+    site: z.string().optional().nullable(),
+    location: z.string().optional().nullable(),
+    employment_type: z.string().optional().nullable(),
+    date_hired: z.string().optional().nullable(),
+    image_url: z.string().optional().nullable(),
 })
 
 export async function GET() {

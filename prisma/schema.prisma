@@ -62,11 +62,16 @@ model employees {
   id               String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   employee_id      String                 @unique @db.VarChar(255)
   first_name       String                 @db.VarChar(255)
+  middle_name      String?                @db.VarChar(255)
   last_name        String                 @db.VarChar(255)
   email            String?                @db.VarChar(255)
   job_title        String?                @db.VarChar(255)
   department       String?                @db.VarChar(255)
   role             String?                @default("Employee") @db.VarChar(50)
+  site             String?                @db.VarChar(255)
+  location         String?                @db.VarChar(255)
+  employment_type  String?                @db.VarChar(255)
+  date_hired       String?                @db.VarChar(50)
   image_url        String?
   status           String?                @default("Active") @db.VarChar(50)
   created_at       DateTime?              @default(now()) @db.Timestamptz(6)

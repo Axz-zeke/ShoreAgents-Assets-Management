@@ -11,12 +11,18 @@ const supabaseAdmin = createClient(
 const employeeUpdateSchema = z.object({
     employee_id: z.string().optional(),
     first_name: z.string().optional(),
+    middle_name: z.string().optional().nullable(),
     last_name: z.string().optional(),
-    email: z.any(),
-    job_title: z.string().optional().or(z.null()),
-    department: z.string().optional().or(z.null()),
+    email: z.string().optional().nullable().or(z.literal('')),
+    job_title: z.string().optional().nullable(),
+    department: z.string().optional().nullable(),
     role: z.string().optional(),
     status: z.string().optional(),
+    site: z.string().optional().nullable(),
+    location: z.string().optional().nullable(),
+    employment_type: z.string().optional().nullable(),
+    date_hired: z.string().optional().nullable(),
+    image_url: z.string().optional().nullable(),
 })
 
 export async function PATCH(

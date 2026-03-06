@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { QueryProvider } from "@/providers/query-provider"
 import { SystemSettingsProvider } from "@/contexts/system-settings-context"
 
+import { Toaster } from "sonner"
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -33,6 +35,7 @@ export default function RootLayout({
             </QueryProvider>
           </SystemSettingsProvider>
         </ThemeProvider>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   )
