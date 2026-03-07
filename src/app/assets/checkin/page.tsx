@@ -90,13 +90,11 @@ const mockRecentReturns = [
 
 const getCheckedOutAssets = (assets: Asset[]) => {
   return assets.filter(a => {
-    const status = (a.status || "").toLowerCase();
     return (
-      status === "in use" ||
-      status === "reserved" ||
-      status === "maintenance" ||
-      status === "leased" ||
-      status === "move"
+      a.status === "In Use" ||
+      a.status === "Reserved" ||
+      a.status === "Maintenance" ||
+      a.status === "Move"
     );
   })
 }

@@ -72,7 +72,7 @@ export function RecentAddedAssetsWidget() {
         ) : (
           <div className="divide-y divide-border/30 flex-1">
             {recentAssets.map((asset) => {
-              const cfg = statusConfig[asset.status] ?? statusConfig['Available']
+              const cfg = statusConfig[asset.status || 'Available'] ?? statusConfig['Available']
               return (
                 <div key={asset.id} className="group flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
                   <div className={cn(

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import * as React from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
@@ -228,13 +229,16 @@ export default function EmployeesPage() {
                     }
                     return true;
                 } else {
-                    toast.error("Asset not found");
+                    toast.error("Not Found!", { description: `Asset "${tagId}" is not in the system.` });
                 }
             } else {
-                toast.error("Hmm, that pattern doesn't look like a valid asset tag. Please try again! 🔍");
+                toast.error("Invalid QR!", { description: "This code doesn't match our asset format." });
             }
         } catch (err) {
-            toast.error("Whoops! No QR code detected in that image. Try a clearer shot! 📸");
+            console.error("Scan error:", err);
+            toast.error("Scan Failed!", { description: "We couldn't find a QR code in that image. Please try a clearer one! 🔍" });
+        } finally {
+            try { scanner.clear(); } catch (e) { }
         }
         return false;
     };
@@ -536,19 +540,23 @@ export default function EmployeesPage() {
                                         <CardHeader className="pb-3 border-b border-white/5 dark:border-white/5 bg-slate-50/50 dark:bg-slate-900/10">
                                             <div className="flex gap-4">
                                                 {/* Profile Image */}
-                                                <div className="relative h-16 w-16 md:h-20 md:w-20 flex-shrink-0 group/img">
-                                                    <div className="h-full w-full rounded-2xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950 shadow-sm flex items-center justify-center transition-all group-hover/img:border-primary/50">
+                                                <div className="relative h-20 w-20 md:h-24 md:w-24 flex-shrink-0 group/img">
+                                                    <div className="h-full w-full rounded-lg border-2 border-border overflow-hidden bg-card shadow-sm flex items-center justify-center transition-all group-hover/img:border-primary/50">
                                                         {emp.image_url ? (
-                                                            <img
-                                                                src={emp.image_url}
-                                                                alt={`${emp.first_name} ${emp.last_name}`}
-                                                                className="h-full w-full object-cover transition-transform duration-500 group-hover/img:scale-110"
-                                                            />
+                                                            <div className="relative h-full w-full">
+                                                                <Image
+                                                                    src={emp.image_url}
+                                                                    alt={`${emp.first_name} ${emp.last_name}`}
+                                                                    fill
+                                                                    className="object-cover transition-transform duration-500 group-hover/img:scale-110"
+                                                                    sizes="(max-width: 768px) 80px, 96px"
+                                                                />
+                                                            </div>
                                                         ) : (
                                                             <UserCircle className="h-10 w-10 text-slate-200 dark:text-slate-800" />
                                                         )}
                                                     </div>
-                                                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-white dark:bg-slate-950 flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm">
+                                                    <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-background flex items-center justify-center border-2 border-border shadow-sm">
                                                         <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                                                     </div>
                                                 </div>
@@ -627,9 +635,11 @@ export default function EmployeesPage() {
                                 <div className="flex flex-col sm:flex-row gap-6">
                                     <div className="flex flex-col items-center gap-3">
                                         <div className="relative group">
-                                            <div className="w-24 h-24 rounded-2xl bg-slate-200 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden transition-all group-hover:border-primary">
+                                            <div className="w-28 h-28 rounded-lg bg-slate-200 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden transition-all group-hover:border-primary">
                                                 {formData.image_url ? (
-                                                    <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                                    <div className="relative w-full h-full">
+                                                        <Image src={formData.image_url} alt="Preview" fill className="object-cover" sizes="112px" />
+                                                    </div>
                                                 ) : (
                                                     <div className="flex flex-col items-center text-slate-400 group-hover:text-primary transition-colors">
                                                         <ImagePlus className="h-8 w-8 mb-1" />
@@ -806,7 +816,7 @@ export default function EmployeesPage() {
                                                         "p-3 rounded-xl border transition-all cursor-pointer flex items-center gap-3 group",
                                                         isSelected
                                                             ? "bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-500/50 ring-1 ring-indigo-500/20"
-                                                            : "bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                                                            : "bg-card border-border hover:border-primary/30"
                                                     )}
                                                 >
                                                     <div className={cn(
@@ -877,7 +887,7 @@ export default function EmployeesPage() {
                                         assets.filter(a => a.assigned_to_id === selectedEmployee?.id).map(asset => (
                                             <div key={asset.id} className="flex items-center justify-between p-3 rounded-lg border border-indigo-100 bg-indigo-50/20">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded bg-white dark:bg-slate-800 flex items-center justify-center border shadow-sm">
+                                                    <div className="w-8 h-8 rounded bg-muted flex items-center justify-center border shadow-sm">
                                                         {asset.category?.toUpperCase().includes("NETWORK") ? <Network className="h-4 w-4 text-indigo-600" /> : <Monitor className="h-4 w-4 text-indigo-600" />}
                                                     </div>
                                                     <div>
@@ -990,9 +1000,11 @@ export default function EmployeesPage() {
                                             <ImageIcon className="h-4 w-4 opacity-70" />
                                             <h3 className="text-xs font-black uppercase tracking-widest opacity-70">Personnel Image</h3>
                                         </div>
-                                        <div className="w-72 h-72 mx-auto rounded-3xl bg-[#030a1c] border-2 border-slate-800/50 flex items-center justify-center overflow-hidden group relative shadow-2xl">
+                                        <div className="w-80 h-80 mx-auto rounded-xl bg-[#030a1c] border-2 border-slate-800/50 flex items-center justify-center overflow-hidden group relative shadow-2xl">
                                             {selectedEmployee.image_url ? (
-                                                <img src={selectedEmployee.image_url} alt="Profile" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                <div className="relative w-full h-full">
+                                                    <Image src={selectedEmployee.image_url as string} alt="Profile" fill className="object-cover transition-transform duration-500 group-hover:scale-110" sizes="320px" />
+                                                </div>
                                             ) : (
                                                 <div className="flex flex-col items-center gap-4 text-slate-600">
                                                     <div className="relative">
@@ -1051,28 +1063,28 @@ export default function EmployeesPage() {
                                             <h3 className="text-xs font-black uppercase tracking-widest opacity-70">Location & Department</h3>
                                         </div>
                                         <div className="grid grid-cols-1 gap-3">
-                                            <div className="bg-[#030a1c] border border-slate-800 rounded-2xl p-4 flex items-center gap-4">
+                                            <div className="bg-slate-100 dark:bg-[#030a1c] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
                                                     <MapPin className="h-5 w-5 text-primary" />
                                                 </div>
                                                 <div className="flex-1">
                                                     <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Primary Department</p>
-                                                    <p className="text-sm font-black text-white uppercase tracking-tight">{selectedEmployee.department || "General Operations"}</p>
+                                                    <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{selectedEmployee.department || "General Operations"}</p>
                                                 </div>
-                                                <Badge variant="secondary" className="bg-slate-800 text-slate-400 border-none font-black text-[9px] tracking-widest">{selectedEmployee.role?.toUpperCase() || "STAFF"}</Badge>
+                                                <Badge variant="secondary" className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-none font-black text-[9px] tracking-widest">{selectedEmployee.role?.toUpperCase() || "STAFF"}</Badge>
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
-                                                <div className="bg-[#030a1c] border border-slate-800 rounded-2xl p-4 flex flex-col gap-1">
+                                                <div className="bg-slate-100 dark:bg-[#030a1c] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col gap-1">
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 font-bold">
                                                         <Building2 className="h-3 w-3 opacity-50" /> Site
                                                     </p>
-                                                    <p className="text-xs font-black text-white truncate">{selectedEmployee.site || "N/A"}</p>
+                                                    <p className="text-xs font-black text-slate-900 dark:text-white truncate">{selectedEmployee.site || "N/A"}</p>
                                                 </div>
-                                                <div className="bg-[#030a1c] border border-slate-800 rounded-2xl p-4 flex flex-col gap-1">
+                                                <div className="bg-slate-100 dark:bg-[#030a1c] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col gap-1">
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 font-bold">
                                                         <MapPin className="h-3 w-3 opacity-50" /> Location
                                                     </p>
-                                                    <p className="text-xs font-black text-white truncate">{selectedEmployee.location || "N/A"}</p>
+                                                    <p className="text-xs font-black text-slate-900 dark:text-white truncate">{selectedEmployee.location || "N/A"}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1089,18 +1101,18 @@ export default function EmployeesPage() {
                                         </div>
                                         <div className="grid grid-cols-1 gap-2">
                                             {assets.filter(a => a.assigned_to_id === selectedEmployee.id).length === 0 ? (
-                                                <div className="py-8 bg-[#030a1c] rounded-2xl border border-dashed border-slate-800 text-center">
+                                                <div className="py-8 bg-slate-100 dark:bg-[#030a1c] rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center">
                                                     <p className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">No hardware currently assigned</p>
                                                 </div>
                                             ) : (
                                                 assets.filter(a => a.assigned_to_id === selectedEmployee.id).map(asset => (
-                                                    <div key={asset.id} className="flex items-center justify-between p-3 bg-[#030a1c] border border-slate-800 rounded-xl hover:border-primary/40 transition-all group/item">
+                                                    <div key={asset.id} className="flex items-center justify-between p-3 bg-slate-100 dark:bg-[#030a1c] border border-slate-200 dark:border-slate-800 rounded-xl hover:border-primary/40 transition-all group/item">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 group-hover/item:text-primary transition-colors">
+                                                            <div className="w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center shrink-0 group-hover/item:text-primary transition-colors">
                                                                 {asset.category?.toUpperCase().includes("NETWORK") ? <Network className="h-4 w-4" /> : <Monitor className="h-4 w-4" />}
                                                             </div>
                                                             <div>
-                                                                <p className="text-sm font-black text-white leading-none mb-1 group-hover/item:text-primary transition-colors">{asset.name || asset.asset_tag_id}</p>
+                                                                <p className="text-sm font-black text-slate-900 dark:text-white leading-none mb-1 group-hover/item:text-primary transition-colors">{asset.name || asset.asset_tag_id}</p>
                                                                 <p className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">{asset.category} • {asset.model || "Hardware"}</p>
                                                             </div>
                                                         </div>
@@ -1117,7 +1129,7 @@ export default function EmployeesPage() {
                 </Dialog>
 
                 <Dialog open={scannerOpen} onOpenChange={(v) => { setScannerOpen(v); if (!v) setScannerView('choice'); }}>
-                    <DialogContent className="max-w-2xl bg-white dark:bg-[#020817] border-slate-200 dark:border-slate-800 p-0 overflow-hidden shadow-2xl">
+                    <DialogContent className="max-w-2xl bg-background border-border p-0 overflow-hidden shadow-2xl">
                         {scannerView === 'choice' ? (
                             <div className="p-8 space-y-8">
                                 <DialogHeader className="p-0 border-none space-y-2">
@@ -1242,6 +1254,6 @@ export default function EmployeesPage() {
                     </AlertDialogContent>
                 </AlertDialog>
             </SidebarInset>
-        </SidebarProvider>
+        </SidebarProvider >
     )
 }

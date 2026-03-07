@@ -24,54 +24,51 @@ const chartConfig = {
   count: {
     label: "Assets",
   },
-  "in-use": {
-    label: "In Use",
-    color: "var(--chart-1)",
-  },
   available: {
     label: "Available",
-    color: "var(--chart-2)",
+    color: "hsl(var(--chart-1))",
+  },
+  "checked-out": {
+    label: "Checked out",
+    color: "hsl(var(--chart-2))",
   },
   maintenance: {
     label: "Maintenance",
-    color: "var(--chart-3)",
-  },
-  disposed: {
-    label: "Disposed",
-    color: "var(--chart-4)",
+    color: "hsl(var(--chart-3))",
   },
   reserved: {
     label: "Reserved",
-    color: "var(--chart-5)",
+    color: "hsl(var(--chart-4))",
+  },
+  disposed: {
+    label: "Disposed",
+    color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig
 
 export function AssetStatusPieWidget() {
   const { data: assets = [], isLoading } = useInstantAssets()
-  
+
   const chartData = React.useMemo(() => {
-    if (isLoading) {
-      return [
-        { status: "available", count: 0, fill: "var(--color-available)" },
-        { status: "check-out", count: 0, fill: "var(--color-check-out)" },
-        { status: "maintenance", count: 0, fill: "var(--color-maintenance)" },
-        { status: "dispose", count: 0, fill: "var(--color-dispose)" },
-        { status: "reserve", count: 0, fill: "var(--color-reserve)" },
-      ]
-    }
-    
+    if (isLoading) return []
+
     const statusCounts = assets.reduce((acc, asset) => {
-      const status = asset.status.toLowerCase().replace(/\s+/g, '-')
+      let status = (asset.status || 'available').toLowerCase().replace(/\s+/g, '-')
+      // Map aliases
+      if (status === 'in-use' || status === 'checkedout') status = 'checked-out'
+      if (status === 'dispose') status = 'disposed'
+      if (status === 'reserve') status = 'reserved'
+
       acc[status] = (acc[status] || 0) + 1
       return acc
     }, {} as Record<string, number>)
-    
+
     return [
       { status: "available", count: statusCounts.available || 0, fill: "var(--color-available)" },
-      { status: "check-out", count: statusCounts['check-out'] || 0, fill: "var(--color-check-out)" },
+      { status: "checked-out", count: statusCounts['checked-out'] || 0, fill: "var(--color-checked-out)" },
       { status: "maintenance", count: statusCounts.maintenance || 0, fill: "var(--color-maintenance)" },
-      { status: "dispose", count: statusCounts.dispose || 0, fill: "var(--color-dispose)" },
-      { status: "reserve", count: statusCounts.reserve || 0, fill: "var(--color-reserve)" },
+      { status: "reserved", count: statusCounts.reserved || 0, fill: "var(--color-reserved)" },
+      { status: "disposed", count: statusCounts.disposed || 0, fill: "var(--color-disposed)" },
     ].filter(item => item.count > 0)
   }, [assets, isLoading])
   const totalAssets = React.useMemo(() => {

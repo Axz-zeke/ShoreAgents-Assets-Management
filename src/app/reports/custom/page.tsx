@@ -54,7 +54,7 @@ const assetData = [
     brand: "Herman Miller",
     purchaseDate: "2023-02-20",
     cost: 350,
-    status: "Checked Out"
+    status: "In Use"
   },
   {
     assetTagId: "AST-004",
@@ -62,7 +62,7 @@ const assetData = [
     brand: "Apple",
     purchaseDate: "2023-03-05",
     cost: 2500,
-    status: "Under Maintenance"
+    status: "Maintenance"
   },
   {
     assetTagId: "AST-005",
@@ -101,10 +101,11 @@ const assetData = [
 // Status options for the select dropdown
 const statusOptions = [
   "Available",
-  "Checked Out",
-  "Under Maintenance",
+  "In Use",
+  "Maintenance",
   "Disposed",
-  "Reserved"
+  "Reserved",
+  "Move"
 ];
 
 // Get unique brands from asset data
@@ -295,11 +296,11 @@ export default function CustomReportsPage() {
                             <TableCell>{formatCurrency(asset.cost)}</TableCell>
                             <TableCell>
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${asset.status === 'Available' ? 'bg-green-100 text-green-800' :
-                                  asset.status === 'Checked Out' ? 'bg-blue-100 text-blue-800' :
-                                    asset.status === 'Under Maintenance' ? 'bg-yellow-100 text-yellow-800' :
-                                      asset.status === 'Disposed' ? 'bg-red-100 text-red-800' :
-                                        asset.status === 'Reserved' ? 'bg-orange-100 text-orange-800' :
-                                          'bg-gray-100 text-gray-800'
+                                asset.status === 'In Use' ? 'bg-blue-100 text-blue-800' :
+                                  asset.status === 'Maintenance' ? 'bg-yellow-100 text-yellow-800' :
+                                    asset.status === 'Disposed' ? 'bg-red-100 text-red-800' :
+                                      asset.status === 'Reserved' ? 'bg-orange-100 text-orange-800' :
+                                        'bg-gray-100 text-gray-800'
                                 }`}>
                                 {asset.status}
                               </span>

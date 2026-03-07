@@ -96,16 +96,14 @@ const getDepartments = () => {
 // Get available assets from useAssets hook (exclude maintenance and disposed assets)
 const getAvailableAssets = (assets: Asset[]) => {
   return assets.filter(asset => {
-    const status = (asset.status || "").toLowerCase();
     return (
-      status === "available" ||
-      status === "move"
+      asset.status === "Available" ||
+      asset.status === "Move"
     );
   }).filter(asset => {
-    const status = (asset.status || "").toLowerCase();
     return (
-      status !== "maintenance" &&
-      status !== "disposed"
+      asset.status !== "Maintenance" &&
+      asset.status !== "Disposed"
     );
   });
 }

@@ -37,7 +37,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { Image, ArrowLeft, Upload, Download, Eye, Trash2, Plus, Search, Grid, List } from "lucide-react"
+import { Image as ImageIcon, ArrowLeft, Upload, Download, Eye, Trash2, Plus, Search, Grid, List } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -178,7 +178,7 @@ export default function ImagesPage() {
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <div className="flex items-center gap-2">
-              <Image className="h-5 w-5" />
+              <ImageIcon className="h-5 w-5" />
               <h1 className="text-lg font-semibold">Image Gallery</h1>
             </div>
           </div>

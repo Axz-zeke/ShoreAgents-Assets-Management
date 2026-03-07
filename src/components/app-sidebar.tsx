@@ -3,40 +3,28 @@
 import * as React from "react"
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
   GalleryVerticalEnd,
-  Map,
-  PieChart,
   Settings2,
   SquareTerminal,
   Package,
   Users,
   FileText,
   BarChart3,
-  Shield,
   Plus,
   UserCheck,
   UserMinus,
   Move,
   Calendar,
-  ArrowLeftRight,
   Trash2,
   Wrench,
   ShieldCheck,
-  List,
-  ClipboardList,
   Building2,
   MapPin,
-  FolderOpen,
   Cog,
   Folder,
   MapPin as MapPinIcon,
-  ArrowRight,
   Layers,
   Tag,
 } from "lucide-react"
@@ -45,7 +33,6 @@ import {
 import { useSystemSettings } from "@/contexts/system-settings-context"
 
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -80,10 +67,6 @@ const data = {
         {
           title: "Analytics",
           url: "/dashboard/analytics",
-        },
-        {
-          title: "Recent Activity",
-          url: "/dashboard/activity",
         },
       ],
     },
@@ -135,25 +118,6 @@ const data = {
           title: "Warranties",
           url: "/assets/warranties",
           icon: ShieldCheck,
-        },
-      ],
-    },
-    {
-      title: "Users",
-      url: "/admin/users",
-      icon: Users,
-      items: [
-        {
-          title: "User Management",
-          url: "/admin/users",
-        },
-        {
-          title: "Departments",
-          url: "/users/departments",
-        },
-        {
-          title: "Roles",
-          url: "/users/roles",
         },
       ],
     },
@@ -317,23 +281,6 @@ const data = {
       ],
     },
   ],
-  projects: [
-    {
-      name: "IT Asset Management",
-      url: "/projects/it-assets",
-      icon: Shield,
-    },
-    {
-      name: "Office Equipment",
-      url: "/projects/office",
-      icon: Frame,
-    },
-    {
-      name: "Vehicle Fleet",
-      url: "/projects/fleet",
-      icon: Map,
-    },
-  ],
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -346,15 +293,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {/* Company Logo */}
           <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden shrink-0 transition-all duration-300">
             {companyInfo.logoUrl ? (
-              <img
-                src={companyInfo.logoUrl}
-                alt={companyInfo.company}
-                className="h-full w-full object-contain transition-opacity duration-300"
-                style={{
-                  WebkitFontSmoothing: 'antialiased',
-                  MozOsxFontSmoothing: 'grayscale'
-                }}
-              />
+              <div className="relative h-full w-full">
+                <Image
+                  src={companyInfo.logoUrl}
+                  alt={companyInfo.company}
+                  fill
+                  className="object-contain transition-opacity duration-300"
+                  sizes="40px"
+                  priority
+                />
+              </div>
             ) : (
               <div className="flex h-full w-full items-center justify-center rounded-lg bg-primary transition-all duration-300">
                 <GalleryVerticalEnd className="h-5 w-5 text-primary-foreground" />
@@ -375,7 +323,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
 
 // GET /api/warranties/[id] - single warranty
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params
         const supabase = supabaseAdmin
         const { data, error } = await supabase
             .from("asset_warranties")
             .select("*")
-            .eq("id", params.id)
+            .eq("id", id)
             .single()
 
         if (error) return NextResponse.json({ error: error.message }, { status: 404 })
@@ -19,8 +20,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PATCH /api/warranties/[id] - update warranty
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params
         const supabase = supabaseAdmin
         const body = await request.json()
 
@@ -37,7 +39,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         const { data, error } = await supabase
             .from("asset_warranties")
             .update({ ...body, updated_at: new Date().toISOString() })
-            .eq("id", params.id)
+            .eq("id", id)
             .select()
             .single()
 
@@ -49,13 +51,14 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 // DELETE /api/warranties/[id] - delete warranty
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const { id } = await params
         const supabase = supabaseAdmin
         const { error } = await supabase
             .from("asset_warranties")
             .delete()
-            .eq("id", params.id)
+            .eq("id", id)
 
         if (error) return NextResponse.json({ error: error.message }, { status: 500 })
         return NextResponse.json({ success: true })

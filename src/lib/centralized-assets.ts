@@ -1,6 +1,6 @@
 // Centralized Asset Data - Single source of truth for all assets
 // Now using imported data as the primary source
-import { Asset } from './imported-asset'
+import { Asset } from './lists-data'
 import { IMPORTED_ASSETS } from './imported-data'
 
 // Legacy interface for backward compatibility
@@ -9,7 +9,7 @@ export interface AssetData {
   name: string
   category: string
   location: string
-  status: "Available" | "In Use" | "Maintenance" | "Disposed" | "Move" | "Reserve" | "Check Out"
+  status: "Available" | "In Use" | "Maintenance" | "Disposed" | "Move" | "Reserved"
   value: number
   purchaseDate: string
   assignedTo: string | null
@@ -30,22 +30,22 @@ function convertImportedAssetToAssetData(asset: Asset): AssetData {
   return {
     id: asset.id,
     name: asset.name || asset.description || 'Unnamed Asset',
-    category: asset.category,
-    location: asset.location,
-    status: asset.status === 'In Use' ? 'In Use' : (asset.status as any),
-    value: asset.value,
-    purchaseDate: asset.purchaseDate,
-    assignedTo: asset.assignedTo,
-    department: asset.department,
+    category: asset.category || 'Uncategorized',
+    location: asset.location || 'N/A',
+    status: (asset.status as any) || 'Available',
+    value: asset.value || 0,
+    purchaseDate: asset.purchaseDate || '',
+    assignedTo: asset.assignedTo || null,
+    department: asset.department || 'N/A',
     serialNumber: asset.serialNumber,
     model: asset.model,
     manufacturer: asset.manufacturer,
     notes: asset.notes || '',
     description: asset.description,
-    cost: asset.value.toString(),
+    cost: (asset.value || 0).toString(),
     warrantyExpiry: undefined,
     lastMaintenance: undefined,
-    currentLocation: asset.location
+    currentLocation: asset.location || 'N/A'
   }
 }
 

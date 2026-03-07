@@ -79,21 +79,16 @@ import {
 
 const getAvailableAssets = (assets: Asset[]) => {
   return assets.filter(asset => {
-    const status = (asset.status || "").toLowerCase();
     return (
-      status === "available" ||
-      status === "In Use" ||
-      status === "Reserved" ||
-      status === "Leased" ||
-      status === "Move" ||
-      status === "In Check-in Queue" ||
-      status === "Returned Lease"
+      asset.status === "Available" ||
+      asset.status === "In Use" ||
+      asset.status === "Reserved" ||
+      asset.status === "Move"
     );
   }).filter(asset => {
-    const status = (asset.status || "").toLowerCase();
     return (
-      status !== "maintenance" &&
-      status !== "disposed"
+      asset.status !== "Maintenance" &&
+      asset.status !== "Disposed"
     );
   });
 }

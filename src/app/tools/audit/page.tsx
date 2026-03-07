@@ -42,7 +42,6 @@ import {
 import { Search, ArrowLeft, Camera, CheckCircle, XCircle, AlertTriangle, Play, Pause, Square } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { DataManager } from "@/lib/lists-data"
 import { parseAssetQrCode } from "@/lib/qr-parser"
 
 interface AuditItem {
@@ -422,17 +421,17 @@ export default function AuditPage() {
                         <Card
                           key={item.id}
                           className={`overflow-hidden border-2 ${!item.scanned
-                              ? 'border-muted'
-                              : item.verified
-                                ? 'border-green-200 dark:border-green-900/30'
-                                : 'border-red-200 dark:border-red-900/30'
+                            ? 'border-muted'
+                            : item.verified
+                              ? 'border-green-200 dark:border-green-900/30'
+                              : 'border-red-200 dark:border-red-900/30'
                             }`}
                         >
                           <div className={`p-2 flex justify-between items-center ${!item.scanned
-                              ? 'bg-muted/30'
-                              : item.verified
-                                ? 'bg-green-50 dark:bg-green-900/10'
-                                : 'bg-red-50 dark:bg-red-900/10'
+                            ? 'bg-muted/30'
+                            : item.verified
+                              ? 'bg-green-50 dark:bg-green-900/10'
+                              : 'bg-red-50 dark:bg-red-900/10'
                             }`}>
                             <span className="text-xs font-mono font-bold">{item.assetId}</span>
                             <Badge className={`${getStatusColor(item)} text-[10px] px-2 h-5`}>

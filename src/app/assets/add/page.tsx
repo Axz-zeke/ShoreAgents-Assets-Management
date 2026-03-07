@@ -48,7 +48,6 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { toast } from "sonner"
-import { DataManager } from "@/lib/lists-data"
 import { setupDataManager } from "@/lib/setup-data"
 import AssetFieldManager, { AnyAssetField } from "@/lib/asset-field-manager"
 import { assetService, CreateAssetData } from "@/lib/asset-service"
@@ -116,13 +115,9 @@ const createAssetFormSchema = (fields: AnyAssetField[]) => {
   return z.object(schemaObject)
 }
 
+
 // Get dynamic data from setup manager
 // MOVED TO COMPONENT FOR REACTIVITY
-// const categories = setupDataManager.getCategories()
-// const locations = setupDataManager.getLocations()
-// const departments = setupDataManager.getDepartments()
-// const employees = setupDataManager.getEmployees()
-// const manufacturers = setupDataManager.getManufacturers()
 
 export default function AddAssetPage() {
   const router = useRouter()

@@ -79,9 +79,7 @@ import {
   Briefcase,
   FileText,
   TrendingDown,
-  Activity,
-  Paperclip,
-  Upload
+  Activity
 } from "lucide-react"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
@@ -92,18 +90,16 @@ import { Asset } from "@/lib/lists-data"
 
 const getAvailableAssets = (assets: Asset[]) => {
   return assets.filter(asset => {
-    const status = (asset.status || "").toLowerCase();
     return (
-      status === "available" ||
-      status === "in use" ||
-      status === "reserved" ||
-      status === "move"
+      asset.status === "Available" ||
+      asset.status === "In Use" ||
+      asset.status === "Reserved" ||
+      asset.status === "Move"
     );
   }).filter(asset => {
-    const status = (asset.status || "").toLowerCase();
     return (
-      status !== "maintenance" &&
-      status !== "disposed"
+      asset.status !== "Maintenance" &&
+      asset.status !== "Disposed"
     );
   });
 }
@@ -139,7 +135,6 @@ export default function DisposeAssetPage() {
   const [historySortField, setHistorySortField] = useState<"date" | "asset" | "value">("date")
   const [historySortOrder, setHistorySortOrder] = useState<"asc" | "desc">("desc")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [receiptFile, setReceiptFile] = useState<File | null>(null)
 
   // QR Scanner states
   const [showQrOptionsDialog, setShowQrOptionsDialog] = useState(false)
@@ -322,8 +317,7 @@ export default function DisposeAssetPage() {
       const today = format(new Date(), "yyyy-MM-dd")
       for (const id of data.assetIds) {
         const asset = assets.find(a => a.id === id)
-        const receiptInfo = receiptFile ? ` | Receipt: ${receiptFile.name}` : ""
-        const historyLine = `[DISPOSE ${today}] Method: ${data.disposalMethod} | Reason: ${data.disposalReason} | Value: ₱${data.disposalValue.toLocaleString()}${data.buyerRecipient ? ` | Recipient: ${data.buyerRecipient}` : ""}${receiptInfo}`
+        const historyLine = `[DISPOSE ${today}] Method: ${data.disposalMethod} | Reason: ${data.disposalReason} | Value: ₱${data.disposalValue.toLocaleString()}${data.buyerRecipient ? ` | Recipient: ${data.buyerRecipient}` : ""}`
         const updatedNotes = asset?.notes ? `${asset.notes}\n${historyLine}` : historyLine
 
         await updateAssetMutation.mutateAsync({
@@ -347,7 +341,6 @@ export default function DisposeAssetPage() {
         notes: "",
       })
       setSelectedAssetIds([])
-      setReceiptFile(null)
     } catch (err) {
       toast.error("Failed to dispose assets")
     } finally {
@@ -685,59 +678,6 @@ export default function DisposeAssetPage() {
                         )}
                       />
 
-                      <div className="space-y-4">
-                        <Label className="text-sm font-medium">Receipt / Attachment (Optional)</Label>
-                        <div
-                          className={cn(
-                            "relative border-2 border-dashed rounded-lg p-6 transition-all",
-                            receiptFile ? "border-emerald-500/50 bg-emerald-500/5" : "border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/50"
-                          )}
-                        >
-                          <Input
-                            type="file"
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                            onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                            accept=".pdf,.jpg,.jpeg,.png"
-                          />
-                          <div className="flex flex-col items-center justify-center gap-2 text-center pointer-events-none">
-                            {receiptFile ? (
-                              <>
-                                <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                                  <CheckCircle className="h-5 w-5 text-emerald-500" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-bold text-emerald-600 truncate max-w-[250px]">{receiptFile.name}</p>
-                                  <p className="text-[10px] text-emerald-600/60 uppercase tracking-widest font-black mt-1">Ready for upload</p>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                  <Paperclip className="h-5 w-5 text-muted-foreground" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">Click or drag to upload receipt</p>
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mt-1">PDF, JPG, or PNG up to 10MB</p>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                          {receiptFile && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute top-2 right-2 h-6 w-6 z-20 hover:text-destructive transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setReceiptFile(null);
-                              }}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
 
                       <div className="mt-auto pt-6 flex justify-end gap-3 border-t">
                         <Button type="button" variant="ghost" onClick={() => router.push("/assets")} className="h-10 px-6 font-bold uppercase tracking-widest text-xs">Cancel</Button>
@@ -1013,14 +953,6 @@ export default function DisposeAssetPage() {
                 <span className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">Total Resource Value</span>
                 <span className="font-mono font-black text-rose-500">₱{totalValue.toLocaleString()}</span>
               </div>
-              {receiptFile && (
-                <div className="flex justify-between items-center text-sm border-t border-border/50 pt-3">
-                  <span className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">Attached Receipt</span>
-                  <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                    <Paperclip className="h-3 w-3" /> {receiptFile.name}
-                  </span>
-                </div>
-              )}
             </div>
 
             <AlertDialogFooter className="gap-2 sm:gap-0">

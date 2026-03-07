@@ -6,12 +6,14 @@ export interface Employee {
     id: string
     employee_id: string
     first_name: string
+    middle_name: string | null
     last_name: string
     email: string | null
     job_title: string | null
     department: string | null
     role: string
     status: string
+    image_url: string | null
     _count?: {
         assets: number
     }

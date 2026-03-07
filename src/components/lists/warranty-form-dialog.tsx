@@ -85,31 +85,31 @@ export function WarrantyFormDialog({
     resolver: zodResolver(warrantyFormSchema),
     defaultValues: warranty
       ? {
-          assetId: warranty.assetId,
-          vendor: warranty.vendor,
-          type: warranty.type,
-          startDate: new Date(warranty.startDate),
-          endDate: new Date(warranty.endDate),
-          status: warranty.status,
-          coverage: warranty.coverage,
-          contactInfo: warranty.contactInfo,
-          referenceNumber: warranty.referenceNumber,
-          cost: warranty.cost || 0,
-          notes: warranty.notes || "",
-        }
+        assetId: warranty.assetId,
+        vendor: warranty.vendor,
+        type: warranty.type,
+        startDate: new Date(warranty.startDate),
+        endDate: new Date(warranty.endDate),
+        status: warranty.status,
+        coverage: warranty.coverage,
+        contactInfo: warranty.contactInfo,
+        referenceNumber: warranty.referenceNumber,
+        cost: warranty.cost || 0,
+        notes: warranty.notes || "",
+      }
       : {
-          assetId: "",
-          vendor: "",
-          type: "Manufacturer",
-          startDate: new Date(),
-          endDate: new Date(),
-          status: "Active",
-          coverage: "",
-          contactInfo: "",
-          referenceNumber: "",
-          cost: 0,
-          notes: "",
-        },
+        assetId: "",
+        vendor: "",
+        type: "Manufacturer",
+        startDate: new Date(),
+        endDate: new Date(),
+        status: "Active",
+        coverage: "",
+        contactInfo: "",
+        referenceNumber: "",
+        cost: 0,
+        notes: "",
+      },
   })
 
   const handleSubmit = (data: WarrantyFormValues) => {
@@ -118,7 +118,7 @@ export function WarrantyFormDialog({
 
     onSubmit({
       assetId: data.assetId,
-      assetName: selectedAsset.name,
+      assetName: selectedAsset.name || "Unknown Asset",
       vendor: data.vendor,
       type: data.type,
       startDate: data.startDate.toISOString().split("T")[0],
@@ -167,7 +167,7 @@ export function WarrantyFormDialog({
                       <SelectContent>
                         {assets.map((asset) => (
                           <SelectItem key={asset.id} value={asset.id}>
-                            {asset.name} ({asset.id})
+                            {asset.name || "Unnamed"} ({asset.id})
                           </SelectItem>
                         ))}
                       </SelectContent>

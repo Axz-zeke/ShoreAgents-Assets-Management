@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+    req: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
+        const { id } = await params
         const body = await req.json()
         const { data, error } = await supabaseAdmin
             .from('setup_sites')
             .update({ ...body, updated_at: new Date().toISOString() })
-            .eq('id', params.id)
+            .eq('id', id)
             .select()
             .single()
         if (error) throw error
@@ -17,9 +21,13 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+    _: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
     try {
-        const { error } = await supabaseAdmin.from('setup_sites').delete().eq('id', params.id)
+        const { id } = await params
+        const { error } = await supabaseAdmin.from('setup_sites').delete().eq('id', id)
         if (error) throw error
         return NextResponse.json({ success: true })
     } catch (e: any) {

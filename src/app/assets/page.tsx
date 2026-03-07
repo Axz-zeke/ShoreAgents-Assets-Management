@@ -369,13 +369,13 @@ export default function AssetsPage() {
   // Assets are now loaded via useAssets hook
 
   // Get unique categories for filters, filtering out empty values
-  const categories = Array.from(new Set(assets.map(asset => asset.category).filter(category => category && category.trim() !== '')))
+  const categories = Array.from(new Set(assets.map(asset => asset.category).filter((category): category is string => !!category && category.trim() !== '')))
 
   // Define all possible statuses
   const allStatuses = ['Available', 'In Use', 'Move', 'Reserved', 'Disposed', 'Maintenance']
 
   // Get unique statuses from assets, but include all possible statuses in the filter
-  const statuses = Array.from(new Set(assets.map(asset => asset.status).filter(status => status && status.trim() !== '')))
+  const statuses = Array.from(new Set(assets.map(asset => asset.status).filter((status): status is string => !!status && status.trim() !== '')))
 
   // Filter and sort assets
   const categoryStats = React.useMemo(() => {
@@ -837,6 +837,7 @@ export default function AssetsPage() {
         position: selectedEmployee.job_title || 'N/A',
         location: 'N/A', // No location in employees schema yet
         employeeId: selectedEmployee.employee_id,
+        imageUrl: selectedEmployee.image_url
       }
     }
     return selectedPerson ? (mockPersons as any)[selectedPerson] : null
@@ -1102,7 +1103,7 @@ export default function AssetsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {formatCurrency(assets.filter(asset => asset.status !== 'Disposed').reduce((sum, asset) => sum + asset.value, 0))}
+                      {formatCurrency(assets.filter(asset => asset.status !== 'Disposed').reduce((sum, asset) => sum + (asset.value || 0), 0))}
                     </div>
                     <p className="text-xs text-muted-foreground">Active portfolio value</p>
                   </CardContent>
@@ -1256,7 +1257,7 @@ export default function AssetsPage() {
                               </div>
                               <div>
                                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Value</p>
-                                <p className="font-medium">{formatCurrency(asset.value)}</p>
+                                <p className="font-medium">{formatCurrency(asset.value || 0)}</p>
                               </div>
                             </div>
                           </CardContent>
@@ -1402,7 +1403,7 @@ export default function AssetsPage() {
                                         </Badge>
                                       )
                                     case 'value':
-                                      return <span className="text-foreground font-mono text-sm">{formatCurrency(asset.value)}</span>
+                                      return <span className="text-foreground font-mono text-sm">{formatCurrency(asset.value || 0)}</span>
                                     case 'name':
                                       return <span className="text-foreground font-medium">{asset.name}</span>
                                     default:
@@ -1501,11 +1502,21 @@ export default function AssetsPage() {
                       <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold">Contact Information</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 sm:space-y-4 pt-0">
-                      <div className="flex items-start gap-3 sm:gap-4">
-                        <User className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-bold text-base sm:text-lg break-words">{selectedPersonData?.name}</p>
-                          <p className="text-xs sm:text-sm text-muted-foreground">Employee ID: {selectedPersonData?.employeeId}</p>
+                      <div className="flex items-start gap-4">
+                        <div className="h-24 w-24 rounded-xl border-2 border-slate-100 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950 shadow-sm flex items-center justify-center flex-shrink-0">
+                          {selectedPersonData.imageUrl ? (
+                            <img
+                              src={selectedPersonData.imageUrl}
+                              alt={selectedPersonData.name}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <User className="h-12 w-12 text-slate-200 dark:text-slate-800" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0 flex flex-col justify-center h-24">
+                          <p className="font-bold text-xl sm:text-2xl break-words">{selectedPersonData?.name}</p>
+                          <p className="text-sm sm:text-base text-muted-foreground uppercase tracking-widest font-black">Employee ID: {selectedPersonData?.employeeId}</p>
                         </div>
                       </div>
 
@@ -1565,7 +1576,7 @@ export default function AssetsPage() {
                                         </div>
                                       </div>
                                       <div className="flex-shrink-0 text-right">
-                                        <p className="font-bold text-sm sm:text-base md:text-lg">{formatCurrency(asset.value)}</p>
+                                        <p className="font-bold text-sm sm:text-base md:text-lg">{formatCurrency(asset.value || 0)}</p>
                                       </div>
                                     </div>
 
@@ -1607,7 +1618,7 @@ export default function AssetsPage() {
                             <div className="flex justify-between items-center">
                               <span className="font-semibold text-sm sm:text-base">Total Value:</span>
                               <span className="font-bold text-sm sm:text-base md:text-lg text-primary">
-                                {formatCurrency(personAssets.reduce((sum, asset) => sum + asset.value, 0))}
+                                {formatCurrency(personAssets.reduce((sum, asset) => sum + (asset.value || 0), 0))}
                               </span>
                             </div>
                           </div>
@@ -2011,7 +2022,7 @@ export default function AssetsPage() {
                               placeholder="0.00"
                             />
                           ) : (
-                            <p className="text-sm font-bold text-green-600">{formatCurrency(selectedAsset.value)}</p>
+                            <p className="text-sm font-bold text-green-600">{formatCurrency(selectedAsset.value || 0)}</p>
                           )}
                         </div>
                         <div className="space-y-1">

@@ -38,7 +38,7 @@ CREATE POLICY "Allow authenticated deletes to asset-images"
 ON storage.objects
 FOR DELETE
 USING (
-  bucket_id = 'asset_images' 
+  bucket_id = 'asset-images' 
   AND auth.role() = 'authenticated'
 );
 

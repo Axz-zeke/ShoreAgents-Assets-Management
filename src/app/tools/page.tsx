@@ -17,14 +17,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { 
-  Wrench, 
-  Upload, 
-  Download, 
-  FileText, 
-  Image, 
+import {
+  Wrench,
+  Upload,
+  Download,
+  FileText,
+  Image as ImageIcon,
   Search,
-  ArrowRight 
+  ArrowRight
 } from "lucide-react"
 import Link from "next/link"
 
@@ -143,7 +143,7 @@ export default function ToolsPage() {
               <Card className="group hover:shadow-lg hover:shadow-orange-500/20 hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer">
                 <CardHeader className="flex flex-row items-center space-y-0 pb-2">
                   <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900 mr-3 group-hover:bg-orange-200 dark:group-hover:bg-orange-800 group-hover:scale-110 transition-all duration-300">
-                    <Image className="h-5 w-5 text-orange-600 dark:text-orange-400 group-hover:text-orange-700 dark:group-hover:text-orange-300 transition-colors duration-300" />
+                    <ImageIcon className="h-5 w-5 text-orange-600 dark:text-orange-400 group-hover:text-orange-700 dark:group-hover:text-orange-300 transition-colors duration-300" />
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-sm font-medium group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-300">Image Gallery</CardTitle>

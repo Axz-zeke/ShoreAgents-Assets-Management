@@ -41,8 +41,10 @@ import { Badge } from "@/components/ui/badge";
 const statusColors = {
   "Available": "bg-emerald-500/10 text-emerald-500 border-none",
   "In Use": "bg-blue-500/10 text-blue-500 border-none",
-  "Under Maintenance": "bg-amber-500/10 text-amber-500 border-none",
+  "Maintenance": "bg-amber-500/10 text-amber-500 border-none",
   "Disposed": "bg-rose-500/10 text-rose-500 border-none",
+  "Reserved": "bg-purple-500/10 text-purple-500 border-none",
+  "Move": "bg-orange-500/10 text-orange-500 border-none",
 }
 
 interface ReportFilter {
@@ -86,7 +88,7 @@ const availableFields = [
 
 const categories = ["IT Equipment", "Furniture", "Vehicles", "Tools", "Machinery"];
 const locations = ["Main Office", "Warehouse", "Branch Office", "Remote"];
-const statuses = ["Available", "Checked Out", "Under Maintenance", "Disposed"];
+const statuses = ["Available", "In Use", "Maintenance", "Disposed", "Reserved", "Move"];
 
 export default function ReportsAssetsPage() {
   const [filters, setFilters] = useState<ReportFilter>({

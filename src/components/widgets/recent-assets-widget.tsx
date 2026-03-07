@@ -12,12 +12,12 @@ import Link from "next/link"
 
 export function RecentAssetsWidget() {
   const { data: assets = [], isLoading } = useInstantAssets()
-  
+
   const recentAssets = React.useMemo(() => {
     if (isLoading) return []
-    
+
     return assets
-      .sort((a, b) => new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime())
+      .sort((a, b) => new Date(b.purchaseDate || 0).getTime() - new Date(a.purchaseDate || 0).getTime())
       .slice(0, 3)
   }, [assets, isLoading])
 
@@ -46,11 +46,11 @@ export function RecentAssetsWidget() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                    <Badge 
-                      variant={asset.status === 'Check Out' ? 'default' : asset.status === 'Available' ? 'secondary' : 'destructive'}
+                    <Badge
+                      variant={asset.status === 'In Use' ? 'default' : asset.status === 'Available' ? 'secondary' : 'destructive'}
                       className="text-xs"
                     >
-                      {asset.status}
+                      {asset.status || 'Unknown'}
                     </Badge>
                     <Button variant="ghost" size="sm" asChild className="h-6 w-6 p-0 sm:h-8 sm:w-8">
                       <Link href={`/assets/${asset.id}`}>

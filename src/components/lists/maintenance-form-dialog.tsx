@@ -85,31 +85,31 @@ export function MaintenanceFormDialog({
     resolver: zodResolver(maintenanceFormSchema),
     defaultValues: maintenance
       ? {
-          assetId: maintenance.assetId,
-          type: maintenance.type,
-          status: maintenance.status,
-          scheduledDate: new Date(maintenance.scheduledDate),
-          completedDate: maintenance.completedDate
-            ? new Date(maintenance.completedDate)
-            : undefined,
-          technician: maintenance.technician,
-          cost: maintenance.cost,
-          description: maintenance.description,
-          nextDue: maintenance.nextDue ? new Date(maintenance.nextDue) : undefined,
-          priority: maintenance.priority,
-          notes: maintenance.notes || "",
-        }
+        assetId: maintenance.assetId,
+        type: maintenance.type,
+        status: maintenance.status,
+        scheduledDate: new Date(maintenance.scheduledDate),
+        completedDate: maintenance.completedDate
+          ? new Date(maintenance.completedDate)
+          : undefined,
+        technician: maintenance.technician,
+        cost: maintenance.cost,
+        description: maintenance.description,
+        nextDue: maintenance.nextDue ? new Date(maintenance.nextDue) : undefined,
+        priority: maintenance.priority,
+        notes: maintenance.notes || "",
+      }
       : {
-          assetId: "",
-          type: "Preventive",
-          status: "Scheduled",
-          scheduledDate: new Date(),
-          technician: "",
-          cost: 0,
-          description: "",
-          priority: "Medium",
-          notes: "",
-        },
+        assetId: "",
+        type: "Preventive",
+        status: "Scheduled",
+        scheduledDate: new Date(),
+        technician: "",
+        cost: 0,
+        description: "",
+        priority: "Medium",
+        notes: "",
+      },
   })
 
   const handleSubmit = (data: MaintenanceFormValues) => {
@@ -118,7 +118,7 @@ export function MaintenanceFormDialog({
 
     onSubmit({
       assetId: data.assetId,
-      assetName: selectedAsset.name,
+      assetName: selectedAsset.name || "Unknown Asset",
       type: data.type,
       status: data.status,
       scheduledDate: data.scheduledDate.toISOString().split("T")[0],
@@ -169,7 +169,7 @@ export function MaintenanceFormDialog({
                       <SelectContent>
                         {assets.map((asset) => (
                           <SelectItem key={asset.id} value={asset.id}>
-                            {asset.name} ({asset.id})
+                            {asset.name || "Unnamed"} ({asset.id})
                           </SelectItem>
                         ))}
                       </SelectContent>

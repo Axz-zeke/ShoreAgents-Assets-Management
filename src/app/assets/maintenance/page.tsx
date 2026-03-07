@@ -75,8 +75,6 @@ import {
   Activity,
   Download,
   ShieldAlert,
-  Paperclip,
-  Upload,
   Coins,
   ArrowUpDown,
   FileText,
@@ -108,7 +106,6 @@ const maintenanceFormSchema = z.object({
   dateCompleted: z.date().optional(),
   maintenanceCost: z.number().min(0),
   isRepeating: z.enum(["yes", "no"]),
-  attachmentFilename: z.string().optional(),
 })
 
 type MaintenanceFormValues = z.infer<typeof maintenanceFormSchema>
@@ -134,7 +131,6 @@ export default function MaintenancePage() {
   const [historySortField, setHistorySortField] = useState<"date" | "cost" | "status">("date")
   const [historySortOrder, setHistorySortOrder] = useState<"asc" | "desc">("desc")
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [serviceReportFile, setServiceReportFile] = useState<File | null>(null)
 
   const availableAssets = getAvailableAssets(assets)
   const isLoading = assetsLoading || maintenanceLoading
@@ -164,7 +160,6 @@ export default function MaintenancePage() {
       serviceType: "routine",
       maintenanceCost: 0,
       isRepeating: "no",
-      attachmentFilename: "",
     },
   })
 
@@ -274,7 +269,6 @@ export default function MaintenancePage() {
         date_completed: data.dateCompleted ? format(data.dateCompleted, "yyyy-MM-dd") : undefined,
         maintenance_cost: data.maintenanceCost,
         is_repeating: data.isRepeating,
-        attachment_filename: serviceReportFile?.name || ""
       }
       await createMaintenanceMutation.mutateAsync(payload)
       toast.success("Maintenance ticket generated")
@@ -289,10 +283,8 @@ export default function MaintenancePage() {
         serviceType: "routine",
         maintenanceCost: 0,
         isRepeating: "no",
-        attachmentFilename: "",
       })
       setSelectedIds([])
-      setServiceReportFile(null)
     } catch (err) {
       toast.error("Failed to generate ticket")
     } finally {
@@ -707,60 +699,6 @@ export default function MaintenancePage() {
                         )}
                       />
 
-                      {/* File Upload Area */}
-                      <div className="space-y-4">
-                        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Service Report / Invoice (Optional)</Label>
-                        <div
-                          className={cn(
-                            "relative border-2 border-dashed rounded-lg p-6 transition-all",
-                            serviceReportFile ? "border-emerald-500/50 bg-emerald-500/5" : "border-muted-foreground/20 hover:border-primary/50 hover:bg-muted/50"
-                          )}
-                        >
-                          <Input
-                            type="file"
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                            onChange={(e) => setServiceReportFile(e.target.files?.[0] || null)}
-                            accept=".pdf,.jpg,.jpeg,.png"
-                          />
-                          <div className="flex flex-col items-center justify-center gap-2 text-center pointer-events-none">
-                            {serviceReportFile ? (
-                              <>
-                                <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                                  <CheckCircle className="h-5 w-5 text-emerald-500" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-bold text-emerald-600 truncate max-w-[250px]">{serviceReportFile.name}</p>
-                                  <p className="text-[10px] text-emerald-600/60 uppercase tracking-widest font-bold mt-1">Ready for upload</p>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
-                                  <Paperclip className="h-5 w-5 text-muted-foreground" />
-                                </div>
-                                <div>
-                                  <p className="text-sm font-bold uppercase tracking-tight">Drop technical documentation</p>
-                                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mt-1">PDF, JPG, or PNG up to 10MB</p>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                          {serviceReportFile && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute top-2 right-2 h-6 w-6 z-20 hover:text-destructive transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setServiceReportFile(null);
-                              }}
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
 
                       <div className="mt-auto pt-6 flex justify-end gap-3 border-t">
                         <Button type="button" variant="ghost" onClick={() => router.push("/assets")} className="h-10 px-6 font-bold uppercase tracking-widest text-[10px]">Back to assets</Button>
@@ -1055,14 +993,6 @@ export default function MaintenancePage() {
                 <span className="text-muted-foreground font-bold uppercase tracking-wider text-[10px]">Budgetary Logic</span>
                 <span className="font-mono font-bold text-amber-500">₱{form.getValues().maintenanceCost.toLocaleString()}</span>
               </div>
-              {serviceReportFile && (
-                <div className="flex justify-between items-center text-sm border-t border-border/50 pt-3">
-                  <span className="text-muted-foreground font-bold uppercase tracking-wider text-[10px]">Attached</span>
-                  <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1 uppercase">
-                    <Paperclip className="h-3 w-3" /> {serviceReportFile.name.slice(0, 20)}...
-                  </span>
-                </div>
-              )}
             </div>
 
             <AlertDialogFooter className="gap-2 sm:gap-0">

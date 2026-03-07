@@ -3,10 +3,10 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params
+        const { id } = await params
         const { data, error } = await supabaseAdmin
             .from('setup_sub_categories')
             .select('*')
@@ -22,10 +22,10 @@ export async function GET(
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params
+        const { id } = await params
         const body = await req.json()
         const { name, description, category, is_active } = body
 
@@ -45,10 +45,10 @@ export async function PUT(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params
+        const { id } = await params
         const { error } = await supabaseAdmin
             .from('setup_sub_categories')
             .delete()

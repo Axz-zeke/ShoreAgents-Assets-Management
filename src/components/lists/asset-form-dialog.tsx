@@ -32,7 +32,7 @@ const assetFormSchema = z.object({
   name: z.string().min(1, "Asset name is required"),
   category: z.string().min(1, "Category is required"),
   location: z.string().min(1, "Location is required"),
-  status: z.enum(["Available", "In Use", "Maintenance", "Disposed", "Move", "Reserved", "Check Out"]),
+  status: z.enum(["Available", "In Use", "Maintenance", "Disposed", "Move", "Reserved"]),
   value: z.number().min(0, "Value must be positive"),
   purchaseDate: z.string().min(1, "Purchase date is required"),
   assignedTo: z.string().optional(),
@@ -74,14 +74,14 @@ export function AssetFormDialog({ open, onOpenChange, asset, onSave }: AssetForm
   useEffect(() => {
     if (asset) {
       form.reset({
-        name: asset.name,
-        category: asset.category,
-        location: asset.location,
-        status: asset.status,
-        value: asset.value,
-        purchaseDate: asset.purchaseDate,
+        name: asset.name || "",
+        category: asset.category || "",
+        location: asset.location || "",
+        status: (asset.status as any) || "Available",
+        value: asset.value || 0,
+        purchaseDate: asset.purchaseDate || "",
         assignedTo: asset.assignedTo || "",
-        department: asset.department,
+        department: asset.department || "",
         serialNumber: asset.serialNumber || "",
         model: asset.model || "",
         manufacturer: asset.manufacturer || "",
@@ -195,7 +195,6 @@ export function AssetFormDialog({ open, onOpenChange, asset, onSave }: AssetForm
                       <SelectContent>
                         <SelectItem value="Available">Available</SelectItem>
                         <SelectItem value="In Use">In Use</SelectItem>
-                        <SelectItem value="Check Out">Check Out</SelectItem>
                         <SelectItem value="Maintenance">Maintenance</SelectItem>
                         <SelectItem value="Disposed">Disposed</SelectItem>
                         <SelectItem value="Move">Move</SelectItem>
