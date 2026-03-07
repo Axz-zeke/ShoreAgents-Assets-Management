@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
+import { createClient } from "@/lib/supabase/server"
+import { isAdminServer } from "@/lib/user-management-server"
 import { z } from "zod"
 
 const assetSchema = z.object({
@@ -37,6 +39,12 @@ export const dynamic = "force-dynamic"
 // GET /api/assets - Fetch all assets
 export async function GET(request: NextRequest) {
   try {
+    const supabaseSession = await createClient();
+    const { data: { user } } = await supabaseSession.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const supabase = supabaseAdmin
 
     // Get search params
@@ -100,6 +108,11 @@ export async function GET(request: NextRequest) {
 // POST /api/assets - Create new asset
 export async function POST(request: NextRequest) {
   try {
+    const isAdmin = await isAdminServer();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden. Admin access required.' }, { status: 403 });
+    }
+
     const supabase = supabaseAdmin
     const body = await request.json()
 

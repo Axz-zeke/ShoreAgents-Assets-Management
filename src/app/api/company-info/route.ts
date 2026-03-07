@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
+import { isAdminServer } from '@/lib/user-management-server';
 
 // GET - Fetch company info
 export async function GET() {
   try {
+    const supabaseSession = await createClient();
+    const { data: { user } } = await supabaseSession.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const supabase = supabaseAdmin;
 
     // Get the first (and should be only) company info record
@@ -66,6 +74,11 @@ export async function GET() {
 // PUT - Update company info
 export async function PUT(request: NextRequest) {
   try {
+    const isAdmin = await isAdminServer();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden. Admin access required.' }, { status: 403 });
+    }
+
     const supabase = supabaseAdmin;
     const body = await request.json();
 
