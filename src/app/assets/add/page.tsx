@@ -399,6 +399,7 @@ export default function AddAssetPage() {
   const [isAddingCategory, setIsAddingCategory] = React.useState(false)
   const [isAddingSubCategory, setIsAddingSubCategory] = React.useState(false)
   const [issuedToSearch, setIssuedToSearch] = React.useState("")
+  const [manufacturerSearch, setManufacturerSearch] = React.useState("")
   const [uploadedImagePreview, setUploadedImagePreview] = React.useState<string | null>(null)
   const [qrCodePreview, setQrCodePreview] = React.useState<string | null>(null)
   const [showAssetIdDialog, setShowAssetIdDialog] = React.useState(false)
@@ -631,10 +632,17 @@ export default function AddAssetPage() {
   React.useEffect(() => {
     const assignedToValue = form.getValues('assignedTo')
     if (assignedToValue) {
-      const selectedEmployee = apiEmployees.find(emp => emp.id === assignedToValue)
+      const selectedEmployee = apiEmployees.find(emp => emp.id === assignedToValue || emp.name === assignedToValue)
       if (selectedEmployee) {
         setIssuedToSearch(selectedEmployee.name)
+      } else {
+        setIssuedToSearch(String(assignedToValue))
       }
+    }
+
+    const manufacturerValue = form.getValues('manufacturer')
+    if (manufacturerValue) {
+      setManufacturerSearch(String(manufacturerValue))
     }
   }, [form, apiEmployees])
 
@@ -1717,15 +1725,70 @@ export default function AddAssetPage() {
         } else if (field.name === 'department') {
           options = apiDepartments.map((dept, idx) => ({ value: dept.name, label: dept.name, key: `dept-${dept.id}-${idx}` }))
         } else if (field.name === 'assignedTo') {
-          options = apiEmployees.map((emp, idx) => ({ value: emp.name, label: emp.name, key: `emp-${emp.id}-${idx}` }))
+          // Handled by special component below
         } else if (field.name === 'manufacturer') {
-          options = apiManufacturers.map((mfr, idx) => ({ value: mfr.name, label: mfr.name, key: `mfr-${mfr.id}-${idx}` }))
+          // Handled by special component below
         } else if (field.options) {
           const uniqueOptions = Array.from(new Set(field.options))
           options = uniqueOptions.map((opt, idx) => ({ value: opt, label: opt, key: `${field.name}-opt-${idx}` }))
         }
 
-        // Special handling for Issued To field to make it searchable
+        // Special handling for Manufacturer field to make it dynamic typing
+        if (field.name === 'manufacturer') {
+          return (
+            <FormField
+              key={field.id}
+              control={form.control}
+              name={fieldName}
+              render={({ field: formField }) => (
+                <FormItem>
+                  <FormLabel>
+                    {field.label}
+                    {field.required && <span className="text-destructive ml-1">*</span>}
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        placeholder="Select or type manufacturer..."
+                        value={manufacturerSearch}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setManufacturerSearch(value)
+                          formField.onChange(value)
+                        }}
+                        className="w-full"
+                      />
+                      {manufacturerSearch && !apiManufacturers.find(m => m.name === manufacturerSearch) && (
+                        <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-md max-h-60 overflow-auto">
+                          {apiManufacturers
+                            .filter(mfr => mfr.name.toLowerCase().includes(manufacturerSearch.toLowerCase()))
+                            .map((mfr) => (
+                              <div
+                                key={mfr.id}
+                                className="px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground text-sm"
+                                onClick={() => {
+                                  setManufacturerSearch(mfr.name)
+                                  formField.onChange(mfr.name)
+                                }}
+                              >
+                                {mfr.name}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  {field.description && (
+                    <FormDescription>{field.description}</FormDescription>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )
+        }
+
+        // Special handling for Assigned To field to make it searchable
         if (field.name === 'assignedTo') {
           return (
             <FormField
@@ -1739,28 +1802,58 @@ export default function AddAssetPage() {
                     {field.required && <span className="text-destructive ml-1">*</span>}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Type to search employees..."
-                      value={issuedToSearch}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setIssuedToSearch(value)
+                    <div className="relative">
+                      <Input
+                        placeholder="Type to search employees..."
+                        value={issuedToSearch}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setIssuedToSearch(value)
 
-                        // Find matching employee and set form field
-                        const matchingEmployee = apiEmployees.find(emp =>
-                          emp.name.toLowerCase().includes(value.toLowerCase())
-                        )
+                          // If user clears the input
+                          if (!value) {
+                            formField.onChange("")
+                            form.setValue('assignedToId', "")
+                            return
+                          }
 
-                        if (matchingEmployee && value === matchingEmployee.name) {
-                          formField.onChange(matchingEmployee.name)
-                          form.setValue('assignedToId', matchingEmployee.id)
-                        } else {
-                          formField.onChange(value)
-                          form.setValue('assignedToId', "")
-                        }
-                      }}
-                      className="w-full"
-                    />
+                          // Find matching employee by name
+                          const matchingEmployee = apiEmployees.find(emp =>
+                            emp.name.toLowerCase() === value.toLowerCase() ||
+                            `${emp.first_name} ${emp.last_name}`.toLowerCase() === value.toLowerCase()
+                          )
+
+                          if (matchingEmployee) {
+                            formField.onChange(matchingEmployee.name)
+                            form.setValue('assignedToId', matchingEmployee.employee_id || matchingEmployee.id)
+                          } else {
+                            // Allow custom text but clear the ID
+                            formField.onChange(value)
+                            form.setValue('assignedToId', "")
+                          }
+                        }}
+                        className="w-full"
+                      />
+                      {issuedToSearch && !apiEmployees.find(e => e.name === issuedToSearch) && (
+                        <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-md max-h-60 overflow-auto">
+                          {apiEmployees
+                            .filter(emp => emp.name.toLowerCase().includes(issuedToSearch.toLowerCase()))
+                            .map((emp) => (
+                              <div
+                                key={emp.id}
+                                className="px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground text-sm"
+                                onClick={() => {
+                                  setIssuedToSearch(emp.name)
+                                  formField.onChange(emp.name)
+                                  form.setValue('assignedToId', emp.employee_id || emp.id)
+                                }}
+                              >
+                                {emp.name} ({emp.employee_id || 'No ID'})
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
                   {field.description && (
                     <FormDescription>{field.description}</FormDescription>

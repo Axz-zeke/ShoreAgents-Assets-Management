@@ -115,6 +115,9 @@ export default function CheckoutPage() {
   const [showAssetSuggestions, setShowAssetSuggestions] = useState(false)
   const [filteredAssets, setFilteredAssets] = useState<Asset[]>([])
 
+  const [apiEmployees, setApiEmployees] = useState<any[]>([])
+  const [isEmployeesLoading, setIsEmployeesLoading] = useState(false)
+
   // QR Scanner states
   const [isQrScannerOpen, setIsQrScannerOpen] = useState(false)
   const [scannedAssetId, setScannedAssetId] = useState<string | null>(null)
@@ -126,6 +129,30 @@ export default function CheckoutPage() {
 
   // Get available assets from the loaded assets
   const availableAssets = getAvailableAssets(assets)
+
+  // Fetch employees from API
+  React.useEffect(() => {
+    const fetchEmployees = async () => {
+      setIsEmployeesLoading(true)
+      try {
+        const response = await fetch('/api/setup/employees')
+        const result = await response.json()
+        if (result.success) {
+          // Map to include a display name
+          const mapped = result.data.map((emp: any) => ({
+            ...emp,
+            name: `${emp.first_name} ${emp.last_name}`,
+          }))
+          setApiEmployees(mapped)
+        }
+      } catch (error) {
+        console.error('Error fetching employees:', error)
+      } finally {
+        setIsEmployeesLoading(false)
+      }
+    }
+    fetchEmployees()
+  }, [])
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -203,13 +230,22 @@ export default function CheckoutPage() {
     form.setValue("assignedTo", value)
 
     if (value.length > 0) {
-      const filtered = Object.entries(allPersons).filter(([name, person]) => {
-        const p = person as { name: string; email: string; department: string }
-        return name.toLowerCase().includes(value.toLowerCase()) ||
-          p.email.toLowerCase().includes(value.toLowerCase()) ||
-          p.department.toLowerCase().includes(value.toLowerCase())
-      })
-      setFilteredPersons(Object.fromEntries(filtered))
+      const filtered = apiEmployees.filter(emp =>
+        emp.name.toLowerCase().includes(value.toLowerCase()) ||
+        emp.email?.toLowerCase().includes(value.toLowerCase()) ||
+        emp.department?.toLowerCase().includes(value.toLowerCase()) ||
+        emp.employee_id?.toLowerCase().includes(value.toLowerCase())
+      )
+      setFilteredPersons(filtered.reduce((acc, emp) => {
+        acc[emp.name] = {
+          name: emp.name,
+          email: emp.email || "",
+          department: emp.department || "No Department",
+          id: emp.id,
+          employee_id: emp.employee_id
+        }
+        return acc
+      }, {} as any))
       setShowAssignToSuggestions(true)
     } else {
       setFilteredPersons({})
