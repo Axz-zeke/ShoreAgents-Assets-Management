@@ -46,8 +46,15 @@ export function LoginForm({
       }
 
       if (data.user) {
-        toast.success("Login successful!")
-        router.push("/dashboard")
+        const forceChange = data.user.user_metadata?.force_password_change === true
+        
+        if (forceChange) {
+          toast.info("Security update required")
+          router.push("/auth/reset-password")
+        } else {
+          toast.success("Login successful!")
+          router.push("/dashboard")
+        }
         router.refresh()
       }
     } catch (error) {

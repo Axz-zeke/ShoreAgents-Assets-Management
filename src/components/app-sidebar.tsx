@@ -243,6 +243,11 @@ const data = {
           url: "/setup/employees",
           icon: Users,
         },
+        {
+          title: "Administrators",
+          url: "/setup/administrators",
+          icon: ShieldCheck,
+        },
       ],
     },
 

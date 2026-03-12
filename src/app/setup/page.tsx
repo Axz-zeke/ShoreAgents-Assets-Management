@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { Cog, Building2, MapPin, FolderOpen, Layers, Users, ArrowRight, Tag } from "lucide-react"
+import { Cog, Building2, MapPin, FolderOpen, Layers, Users, ArrowRight, Tag, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 
 const SETUP_ITEMS = [
@@ -121,6 +121,22 @@ const SETUP_ITEMS = [
     btnHover: "group-hover:bg-indigo-600",
     descHover: "group-hover:text-indigo-500 dark:group-hover:text-indigo-400",
     titleHover: "group-hover:text-indigo-600 dark:group-hover:text-indigo-400",
+  },
+  {
+    title: "Administrators",
+    description: "Manage system administrators, create new logins, and control access permissions",
+    href: "/setup/administrators",
+    icon: ShieldCheck,
+    color: "red",
+    bgLight: "bg-red-100",
+    bgDark: "dark:bg-red-900",
+    bgHoverLight: "group-hover:bg-red-200",
+    bgHoverDark: "dark:group-hover:bg-red-800",
+    textColor: "text-red-600 dark:text-red-400",
+    shadowColor: "hover:shadow-red-500/20",
+    btnHover: "group-hover:bg-red-600",
+    descHover: "group-hover:text-red-500 dark:group-hover:text-red-400",
+    titleHover: "group-hover:text-red-600 dark:group-hover:text-red-400",
   },
 ]
 
