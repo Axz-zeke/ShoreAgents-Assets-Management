@@ -366,23 +366,23 @@ export default function DisposeAssetPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 space-y-10 p-8 pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <main className="flex-1 space-y-4 md:space-y-10 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8 md:h-10 md:w-10">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <h2 className="text-3xl font-bold tracking-tight">Dispose Asset</h2>
+              <h2 className="text-xl md:text-3xl font-black tracking-tight uppercase">Dispose Asset</h2>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-destructive border-destructive bg-destructive/5 uppercase tracking-wider font-bold text-[10px] px-3 h-6">
+            <div className="flex items-center gap-2 self-start md:self-center">
+              <Badge variant="outline" className="text-destructive border-destructive bg-destructive/5 uppercase tracking-wider font-bold text-[9px] md:text-[10px] px-3 h-6">
                 Permanent Protocol
               </Badge>
             </div>
           </div>
 
           {/* Quick Stats Section */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="bg-muted/20 border-border/50">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between space-y-0 pb-2">
@@ -453,7 +453,7 @@ export default function DisposeAssetPage() {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 items-stretch">
             {/* Asset Selection */}
-            <Card className="lg:col-span-3 h-full flex flex-col">
+            <Card className="lg:col-span-3 h-full flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
               <CardHeader>
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Plus className="h-5 w-5" />
@@ -494,11 +494,11 @@ export default function DisposeAssetPage() {
                             className="flex items-center justify-between p-3 hover:bg-muted cursor-pointer border-b last:border-0 transition-colors"
                             onClick={() => addAsset(a.id)}
                           >
-                            <div className="flex flex-col">
+                            <div className="flex flex-col min-w-0 flex-1 mr-2">
                               <span className="font-bold text-sm">{a.id}</span>
-                              <span className="text-[11px] text-muted-foreground">{a.name} • ₱{a.value?.toLocaleString()}</span>
+                              <span className="text-[11px] text-muted-foreground truncate">{a.name} • ₱{a.value?.toLocaleString()}</span>
                             </div>
-                            <Plus className="h-4 w-4 text-muted-foreground" />
+                            <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                           </div>
                         )) : (
                           <div className="p-4 text-center text-xs text-muted-foreground">No available assets found</div>
@@ -560,10 +560,10 @@ export default function DisposeAssetPage() {
             </Card>
 
             {/* Disposal Details */}
-            <div className="lg:col-span-4">
+            <div className="lg:col-span-4 min-w-0">
               <Form {...form}>
                 <form onSubmit={handleFormSubmit} className="h-full">
-                  <Card className="h-full flex flex-col">
+                  <Card className="h-full flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
                     <CardHeader>
                       <CardTitle className="text-xl flex items-center gap-2">
                         <FileText className="h-5 w-5 text-primary" />
@@ -698,26 +698,26 @@ export default function DisposeAssetPage() {
           </div>
 
           {/* Disposal Tracking Log */}
-          <Card className="mt-8 flex flex-col overflow-hidden border shadow-sm">
+          <Card className="mt-8 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
             <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="text-lg md:text-xl font-black uppercase tracking-tight flex items-center gap-2">
                     <HistoryIcon className="h-5 w-5 text-rose-500" />
                     Disposal Tracking Log
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground text-sm mt-1">Permanent record of decommissioned assets and recovery values</CardDescription>
+                  <CardDescription className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-wider opacity-70">Permanent record of decommissioned assets and recovery values</CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-xs h-8 gap-2 font-bold">
-                    <Download className="h-3 w-3" /> Export History
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-[10px] font-bold uppercase tracking-wider h-9 gap-2 px-4 shadow-sm hover:bg-muted transition-all">
+                    <Download className="h-3.5 w-3.5" /> Export History
                   </Button>
                 </div>
               </div>
 
               {/* Toolbar */}
-              <div className="flex flex-wrap items-center gap-3 mt-8">
-                <div className="relative flex-1 min-w-[300px] group">
+              <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
+                <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                   <Input
                     placeholder="Search by asset, reason, method or recipient..."
@@ -729,8 +729,8 @@ export default function DisposeAssetPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="p-0 flex-1 flex flex-col">
-              <ScrollArea className="h-[450px] w-full border-t border-border shadow-inner">
+            <CardContent className="p-0 flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+              <ScrollArea orientation="both" className="h-[550px] w-full border-t border-border/40 cursor-grab active:cursor-grabbing">
                 <div className="min-w-[1100px]">
                   <Table>
                     <TableHeader className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b">

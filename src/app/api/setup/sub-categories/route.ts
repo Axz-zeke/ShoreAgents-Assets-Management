@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
+import { isAdminServer } from '@/lib/user-management-server'
 
 export async function GET() {
     try {
+        const supabaseSession = await createClient()
+        const { data: { user } } = await supabaseSession.auth.getUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
         const { data, error } = await supabaseAdmin
             .from('setup_sub_categories')
             .select('*')
@@ -20,6 +27,10 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
     try {
+        const isAdmin = await isAdminServer()
+        if (!isAdmin) {
+            return NextResponse.json({ success: false, error: 'Forbidden. Admin access required.' }, { status: 403 })
+        }
         const body = await req.json()
         const { name, description, category } = body
         if (!name) return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 })

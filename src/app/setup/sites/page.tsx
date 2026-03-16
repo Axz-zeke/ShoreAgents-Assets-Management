@@ -120,10 +120,10 @@ export default function SitesPage() {
         <main className="flex-1 space-y-6 p-4 md:p-8 pt-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-black tracking-tight uppercase flex items-center gap-3">
-                <MapPin className="h-8 w-8 text-primary" /> Sites
+              <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase flex items-center gap-3">
+                <MapPin className="h-6 w-6 md:h-8 md:w-8 text-primary" /> Sites
               </h1>
-              <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest opacity-70 mt-1">Define physical company sites and branches</p>
+              <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70 mt-1">Define physical company sites and branches</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={fetchSites} className="h-9 font-bold uppercase tracking-wider">
@@ -200,7 +200,7 @@ export default function SitesPage() {
                             </Badge>
                           </td>
                           <td className="px-4 py-3">
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1 transition-opacity">
                               <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(s)}><Edit className="h-3.5 w-3.5" /></Button>
                               <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:text-destructive hover:bg-destructive/10" onClick={() => { setDeletingId(s.id); setDeleteDialogOpen(true) }}><Trash2 className="h-3.5 w-3.5" /></Button>
                             </div>

@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
+import { isAdminServer } from '@/lib/user-management-server'
 import { z } from 'zod'
-
-// Create a service-role client 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 const employeeUpdateSchema = z.object({
     employee_id: z.string().optional(),
@@ -30,6 +26,10 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const isAdmin = await isAdminServer()
+        if (!isAdmin) {
+            return NextResponse.json({ success: false, error: 'Forbidden. Admin access required.' }, { status: 403 })
+        }
         const { id } = await params
         const body = await req.json()
 
@@ -65,6 +65,10 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const isAdmin = await isAdminServer()
+        if (!isAdmin) {
+            return NextResponse.json({ success: false, error: 'Forbidden. Admin access required.' }, { status: 403 })
+        }
         const { id } = await params
 
         // 1. Unassign assets first to maintain data integrity

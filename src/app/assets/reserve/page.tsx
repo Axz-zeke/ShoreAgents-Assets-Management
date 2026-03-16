@@ -652,16 +652,16 @@ export default function ReserveAssetPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 space-y-10 p-8 pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <main className="flex-1 space-y-4 md:space-y-10 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8 md:h-10 md:w-10">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <h2 className="text-3xl font-bold tracking-tight">Reserve Asset</h2>
+              <h2 className="text-xl md:text-3xl font-black tracking-tight uppercase">Reserve Asset</h2>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-primary border-primary bg-primary/5 uppercase tracking-wider font-bold text-[10px] px-3">
+            <div className="flex items-center gap-2 self-start md:self-center">
+              <Badge variant="outline" className="text-primary border-primary bg-primary/5 uppercase tracking-wider font-bold text-[9px] md:text-[10px] px-3">
                 {assets.filter(a => a.status === "Reserved").length} Active Reservations
               </Badge>
             </div>
@@ -669,8 +669,8 @@ export default function ReserveAssetPage() {
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 items-stretch">
             {/* Left Column: Tracking & Forms */}
-            <div className="lg:col-span-4 flex flex-col space-y-4">
-              <Card className="flex-1 flex flex-col">
+            <div className="lg:col-span-4 flex flex-col space-y-4 min-w-0">
+              <Card className="flex-1 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
@@ -691,7 +691,7 @@ export default function ReserveAssetPage() {
                               value={assetSearch}
                               onChange={(e) => handleAssetSearch(e.target.value)}
                               onFocus={() => assetSearch.length > 0 && setShowAssetSuggestions(true)}
-                              className="pl-10 pr-10 focus-visible:ring-primary/30"
+                              className="pl-10 pr-10 focus-visible:ring-primary/30 w-full"
                             />
                             <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
                               <Button
@@ -718,7 +718,7 @@ export default function ReserveAssetPage() {
                                           >
                                             <div className="flex flex-col">
                                               <span className="font-bold text-sm group-hover/item:text-primary transition-colors">{a.id}</span>
-                                              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{a.name} • ₱{a.value?.toLocaleString()}</span>
+                                              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider truncate max-w-[200px]">{a.name} • ₱{a.value?.toLocaleString()}</span>
                                             </div>
                                             <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity">
                                               <Plus className="h-3 w-3 text-primary" />
@@ -944,16 +944,19 @@ export default function ReserveAssetPage() {
             </div>
 
             {/* Right Column: Recent Activity */}
-            <div className="lg:col-span-3 flex flex-col space-y-4">
-              <Card className="flex-1 flex flex-col overflow-hidden h-full">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl">Recent Activity</CardTitle>
+            <div className="lg:col-span-3 flex flex-col space-y-4 min-w-0">
+              <Card className="flex-1 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
+                <CardHeader className="pb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-1">
+                      <CardTitle className="text-xl font-black uppercase tracking-tight">Recent Activity</CardTitle>
+                      <CardDescription className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">Track latest asset reservation status</CardDescription>
+                    </div>
                     <Select value={reservationFilter} onValueChange={setReservationFilter}>
-                      <SelectTrigger className="h-8 w-[100px] text-xs">
-                        <SelectValue placeholder="Filter" />
+                      <SelectTrigger className="h-9 w-full sm:w-[130px] text-[10px] font-bold uppercase tracking-widest bg-muted/50">
+                        <SelectValue placeholder="Filter By" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-card/95 backdrop-blur-xl border-border/50">
                         <SelectItem value="All">All Items</SelectItem>
                         {Array.from(new Set(allReservations.map(r => (r as any).department).filter(Boolean))).map(dept => (
                           <SelectItem key={dept} value={dept}>{dept}</SelectItem>
@@ -961,36 +964,39 @@ export default function ReserveAssetPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <CardDescription>Track latest asset reservation status</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1 flex flex-col p-4 pt-2 overflow-hidden">
+                <CardContent className="flex-1 flex flex-col p-3 md:p-6 pt-0 overflow-hidden">
                   <ScrollArea className="flex-1 w-full">
-                    <div className="space-y-4 pr-4">
+                    <div className="space-y-3 pr-4">
                       {recentReservations.length > 0 ? (
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           {recentReservations.map((r: any) => (
-                            <div key={r.id} className="flex items-center justify-between p-3.5 rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/40 transition-all duration-200 group">
+                            <div key={r.id} className="flex items-start justify-between p-3 rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/40 transition-all duration-200 group gap-3">
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
                                   <Package className="h-4 w-4 text-primary" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="font-bold text-sm truncate text-foreground/90">{r.name}</div>
-                                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">
-                                    <Users className="h-3 w-3 opacity-60" />
-                                    <span>{r.person}</span>
-                                    <span className="opacity-30">•</span>
-                                    <Building2 className="h-3 w-3 opacity-60" />
-                                    <span>{r.department}</span>
+                                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground">
+                                    <div className="flex items-center gap-1 min-w-0">
+                                      <Users className="h-2.5 w-2.5 opacity-60" />
+                                      <span className="truncate">{r.person}</span>
+                                    </div>
+                                    <span className="opacity-30 hidden sm:inline">•</span>
+                                    <div className="flex items-center gap-1 min-w-0">
+                                      <Building2 className="h-2.5 w-2.5 opacity-60" />
+                                      <span className="truncate">{r.department}</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
-                              <div className="flex flex-col items-end gap-1 ml-4 flex-shrink-0">
-                                <div className="text-[10px] font-bold text-muted-foreground flex items-center gap-1 opacity-70">
+                              <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                                <div className="text-[9px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-1 opacity-70 whitespace-nowrap">
                                   <Clock className="h-2.5 w-2.5" />
                                   {r.time}
                                 </div>
-                                <Badge variant="outline" className="bg-emerald-500/5 text-emerald-500 border-emerald-500/20 text-[9px] h-4 px-1 leading-none">RESERVED</Badge>
+                                <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/10 hover:bg-emerald-500/20 text-[8px] h-4 px-1 leading-none font-black uppercase tracking-widest whitespace-nowrap">RESERVED</Badge>
                               </div>
                             </div>
                           ))}
@@ -998,7 +1004,7 @@ export default function ReserveAssetPage() {
                       ) : (
                         <div className="flex flex-col items-center justify-center p-12 text-center text-muted-foreground opacity-20">
                           <Package className="h-12 w-12 mb-2" />
-                          <p>No recent activity found</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest">No recent activity found</p>
                         </div>
                       )}
                     </div>
@@ -1010,7 +1016,7 @@ export default function ReserveAssetPage() {
                       <History className="h-3 w-3" />
                       Reservation Insights
                     </h4>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 group hover:bg-primary/10 transition-colors cursor-default">
                         <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-wider font-bold opacity-60">Total Active</div>
                         <div className="text-2xl font-black text-primary flex items-baseline gap-1">
@@ -1042,26 +1048,26 @@ export default function ReserveAssetPage() {
           </div>
 
           {/* Active Reservations Table */}
-          <Card className="flex flex-col overflow-hidden border shadow-sm">
+          <Card className="flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
             <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="text-lg md:text-xl font-black uppercase tracking-tight flex items-center gap-2">
                     <History className="h-5 w-5 text-amber-500" />
                     Reservation Tracking Log
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground text-sm mt-1">Full history of asset reservations and scheduling</CardDescription>
+                  <CardDescription className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-wider opacity-70">Full history of asset reservations and scheduling</CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-xs h-8 gap-2">
-                    <Download className="h-3 w-3" /> Export Log
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-[10px] font-bold uppercase tracking-wider h-9 gap-2 px-4 shadow-sm hover:bg-muted transition-all">
+                    <Download className="h-3.5 w-3.5" /> Export Log
                   </Button>
                 </div>
               </div>
 
               {/* Toolbar */}
-              <div className="flex flex-wrap items-center gap-3 mt-8">
-                <div className="relative flex-1 min-w-[300px] group">
+              <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
+                <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                   <Input
                     placeholder="Search by asset, person, ticket or purpose..."
@@ -1073,8 +1079,8 @@ export default function ReserveAssetPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="p-0 flex-1 flex flex-col">
-              <ScrollArea className="h-[400px] w-full border-t border-border shadow-inner">
+            <CardContent className="p-0 flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+              <ScrollArea orientation="both" className="h-[550px] w-full border-t border-border/40 cursor-grab active:cursor-grabbing">
                 <div className="min-w-[1100px]">
                   <Table>
                     <TableHeader className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b">

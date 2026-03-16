@@ -74,8 +74,8 @@ export function NavUser() {
 
       toast.success("Signed out successfully")
       
-      // Force a hard redirect to login page
-      window.location.href = "/login"
+      // Force a hard redirect to login page (now root)
+      window.location.href = "/"
     } catch (error) {
       console.error("Logout error:", error)
       toast.error("Failed to sign out")

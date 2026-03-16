@@ -94,10 +94,10 @@ export default function DepartmentsPage() {
         <main className="flex-1 space-y-6 p-4 md:p-8 pt-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-black tracking-tight uppercase flex items-center gap-3">
-                <Users className="h-8 w-8 text-primary" /> Departments
+              <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase flex items-center gap-3">
+                <Users className="h-6 w-6 md:h-8 md:w-8 text-primary" /> Departments
               </h1>
-              <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest opacity-70 mt-1">Organize assets by company department</p>
+              <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70 mt-1">Organize assets by company department</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={fetchDepts} className="h-9 font-bold uppercase tracking-wider"><RefreshCw className="h-4 w-4 mr-2" />Refresh</Button>
@@ -131,7 +131,7 @@ export default function DepartmentsPage() {
                           <td className="px-4 py-3 text-sm text-muted-foreground max-w-[200px] truncate">{d.description || "—"}</td>
                           <td className="px-4 py-3 text-sm text-muted-foreground">{d.manager || "—"}</td>
                           <td className="px-4 py-3"><Badge className={cn("text-[10px] font-black border px-2 py-0.5", d.is_active ? "bg-emerald-500/10 border-emerald-200 text-emerald-600" : "bg-slate-500/10 border-slate-200 text-slate-500")}>{d.is_active ? "Active" : "Inactive"}</Badge></td>
-                          <td className="px-4 py-3"><div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <td className="px-4 py-3"><div className="flex items-center gap-1 transition-opacity">
                             <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(d)}><Edit className="h-3.5 w-3.5" /></Button>
                             <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:text-destructive hover:bg-destructive/10" onClick={() => { setDeletingId(d.id); setDeleteDialogOpen(true) }}><Trash2 className="h-3.5 w-3.5" /></Button>
                           </div></td>

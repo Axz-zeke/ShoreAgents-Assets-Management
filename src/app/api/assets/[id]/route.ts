@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
+import { createClient } from "@/lib/supabase/server"
 import { z } from "zod"
 
 const assetUpdateSchema = z.object({
@@ -34,15 +35,25 @@ const assetUpdateSchema = z.object({
   transferMethod: z.string().optional().nullable(),
   authorized_by: z.string().optional().nullable(),
   authorizedBy: z.string().optional().nullable(),
+  asset_type: z.string().optional().nullable(),
+  assetType: z.string().optional().nullable(),
   image_url: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   image_file_name: z.string().optional().nullable(),
   imageFileName: z.string().optional().nullable(),
+  purchased_from: z.string().optional().nullable(),
+  purchasedFrom: z.string().optional().nullable(),
 })
 
 // GET /api/assets/[id] - Fetch single asset
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabaseSession = await createClient()
+    const { data: { user } } = await supabaseSession.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = supabaseAdmin
     const { id: assetId } = await params
 
@@ -73,6 +84,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 // PUT /api/assets/[id] - Update asset
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabaseSession = await createClient()
+    const { data: { user } } = await supabaseSession.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = supabaseAdmin
     const { id: assetId } = await params
     const body = await request.json()
@@ -121,6 +138,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     setField('condition')
     setField('transfer_method', 'transferMethod')
     setField('authorized_by', 'authorizedBy')
+    setField('asset_type', 'assetType')
+    setField('purchased_from', 'purchasedFrom')
     setField('image_url', 'imageUrl')
     setField('image_file_name', 'imageFileName')
 
@@ -191,6 +210,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 // DELETE /api/assets/[id] - Delete asset
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabaseSession = await createClient()
+    const { data: { user } } = await supabaseSession.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = supabaseAdmin
     const { id: assetId } = await params
 

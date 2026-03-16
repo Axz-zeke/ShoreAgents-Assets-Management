@@ -1,17 +1,12 @@
-import { createClient } from "@supabase/supabase-js"
+import { supabaseAdmin } from "@/lib/supabase/admin"
 import { isAdminServer } from "@/lib/user-management-server"
 import { NextResponse } from "next/server"
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function GET() {
   try {
     const isAdmin = await isAdminServer()
     if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
     }
 
     // 1. Get all admin IDs from public.users

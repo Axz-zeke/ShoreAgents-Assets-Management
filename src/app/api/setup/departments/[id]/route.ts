@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { isAdminServer } from '@/lib/user-management-server'
 
 export async function PATCH(
     req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const isAdmin = await isAdminServer()
+        if (!isAdmin) {
+            return NextResponse.json({ success: false, error: 'Forbidden. Admin access required.' }, { status: 403 })
+        }
         const { id } = await params
         const body = await req.json()
         const { data, error } = await supabaseAdmin
@@ -26,6 +31,10 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const isAdmin = await isAdminServer()
+        if (!isAdmin) {
+            return NextResponse.json({ success: false, error: 'Forbidden. Admin access required.' }, { status: 403 })
+        }
         const { id } = await params
         const { error } = await supabaseAdmin.from('setup_departments').delete().eq('id', id)
         if (error) throw error

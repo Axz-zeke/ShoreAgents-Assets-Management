@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
+import { createClient } from "@/lib/supabase/server"
 
 // GET /api/maintenance/[id] - Fetch single maintenance record
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabaseSession = await createClient()
+    const { data: { user } } = await supabaseSession.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = supabaseAdmin
     const { id: maintenanceId } = await params
 
@@ -56,6 +63,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 // PUT /api/maintenance/[id] - Update maintenance record
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabaseSession = await createClient()
+    const { data: { user } } = await supabaseSession.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = supabaseAdmin
     const { id: maintenanceId } = await params
     const body = await request.json()
@@ -141,6 +154,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 // DELETE /api/maintenance/[id] - Delete maintenance record
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const supabaseSession = await createClient()
+    const { data: { user } } = await supabaseSession.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const supabase = supabaseAdmin
     const { id: maintenanceId } = await params
 

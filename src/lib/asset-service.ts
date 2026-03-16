@@ -51,6 +51,8 @@ export interface CreateAssetData {
   assignedToId?: string
   assetType?: string
   notes?: string
+  condition?: string
+  purchasedFrom?: string
   imageUrl?: string
   imageFileName?: string
   manufacturer?: string

@@ -209,27 +209,27 @@ export default function WarrantiesListPage() {
         <main className="flex-1 space-y-6 p-4 md:p-8 pt-6">
           {/* Page Header */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-black tracking-tight uppercase flex items-center gap-3">
-                <ShieldCheck className="h-8 w-8 text-primary" />
+            <div className="flex flex-col gap-1">
+              <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase flex items-center gap-3">
+                <ShieldCheck className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                 Asset Warranties
               </h1>
-              <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest opacity-70 mt-1">
+              <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">
                 Manage and monitor all asset warranty records
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={fetchWarranties} className="h-9 font-bold uppercase tracking-wider">
+            <div className="flex items-center gap-2 self-start md:self-center">
+              <Button variant="outline" size="sm" onClick={fetchWarranties} className="h-9 font-bold uppercase tracking-wider text-[10px] md:text-xs">
                 <RefreshCw className="h-4 w-4 mr-2" /> Refresh
               </Button>
-              <Button onClick={openAdd} className="h-9 font-bold uppercase tracking-wider gap-2">
+              <Button onClick={openAdd} className="h-9 font-bold uppercase tracking-wider gap-2 text-[10px] md:text-xs">
                 <Plus className="h-4 w-4" /> Add Warranty
               </Button>
             </div>
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               { label: "Total", value: stats.total, color: "text-primary", bg: "bg-primary/10", icon: ShieldCheck },
               { label: "Active", value: stats.active, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", icon: CheckCircle2 },
@@ -253,18 +253,18 @@ export default function WarrantiesListPage() {
           {/* Filters */}
           <Card className="border-border/50 bg-card/50">
             <CardContent className="p-4">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="relative flex-1 group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                   <Input
                     placeholder="Search by asset ID, name, or provider..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    className="pl-9 font-medium"
+                    className="pl-9 font-medium h-10"
                   />
                 </div>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-full sm:w-48 font-bold">
+                  <SelectTrigger className="w-full md:w-48 font-bold h-10">
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -279,7 +279,7 @@ export default function WarrantiesListPage() {
           </Card>
 
           {/* Table */}
-          <Card className="border-border/50 bg-card/50 overflow-hidden">
+          <Card className="border-border/50 bg-card/50 w-full max-w-full overflow-hidden border shadow-sm">
             <CardHeader className="border-b border-border/40 bg-muted/5 pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-bold">Warranty Records</CardTitle>
@@ -307,8 +307,9 @@ export default function WarrantiesListPage() {
                   )}
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                <div className="overflow-x-auto min-w-0">
+                  <div className="min-w-[1000px]">
+                    <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-border/40 bg-muted/10">
                         {["Asset", "Type", "Provider", "Reference #", "Start Date", "End Date", "Days Left", "Status", "Actions"].map(h => (
@@ -373,6 +374,7 @@ export default function WarrantiesListPage() {
                       })}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -381,16 +383,17 @@ export default function WarrantiesListPage() {
 
         {/* Add / Edit Modal */}
         <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
+          <DialogContent className="max-w-2xl max-h-[95vh] flex flex-col p-0 overflow-hidden">
+            <DialogHeader className="px-6 pt-6">
               <DialogTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5 text-primary" />
                 {editingWarranty ? "Edit Warranty" : "Add Warranty"}
               </DialogTitle>
-              <DialogDescription className="text-[11px] font-bold uppercase tracking-widest">
+              <DialogDescription className="text-[10px] md:text-[11px] font-bold uppercase tracking-widest opacity-70">
                 {editingWarranty ? "Update warranty record details" : "Add a new warranty record for an asset"}
               </DialogDescription>
             </DialogHeader>
+            <div className="flex-1 overflow-y-auto px-6 py-4">
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
               <div className="space-y-1.5">
@@ -450,10 +453,10 @@ export default function WarrantiesListPage() {
                   className="resize-none min-h-[60px]" />
               </div>
             </div>
-
-            <DialogFooter className="gap-2 pt-2">
-              <Button variant="outline" onClick={() => setModalOpen(false)} className="font-bold uppercase tracking-wider">Cancel</Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting} className="font-bold uppercase tracking-wider gap-2">
+            </div>
+            <DialogFooter className="px-6 pb-6 pt-2 gap-2 flex-col sm:flex-row">
+              <Button variant="outline" onClick={() => setModalOpen(false)} className="font-bold uppercase tracking-wider text-[10px] md:text-xs">Cancel</Button>
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="font-bold uppercase tracking-wider gap-2 text-[10px] md:text-xs">
                 {isSubmitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
                 {editingWarranty ? "Update Warranty" : "Save Warranty"}
               </Button>
@@ -464,13 +467,13 @@ export default function WarrantiesListPage() {
         {/* View Modal */}
         {viewingWarranty && (
           <Dialog open={viewModalOpen} onOpenChange={setViewModalOpen}>
-            <DialogContent className="max-w-lg">
-              <DialogHeader>
+            <DialogContent className="max-w-lg max-h-[90vh] flex flex-col p-0 overflow-hidden">
+              <DialogHeader className="px-6 pt-6">
                 <DialogTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-primary" /> Warranty Details
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                 {(() => {
                   const cfg = STATUS_CONFIG[viewingWarranty.status] ?? STATUS_CONFIG.active
                   const end = parseISO(viewingWarranty.end_date)
@@ -522,7 +525,7 @@ export default function WarrantiesListPage() {
                   )
                 })()}
               </div>
-              <DialogFooter>
+              <DialogFooter className="px-6 pb-6 pt-2 gap-2 flex-col sm:flex-row">
                 <Button variant="outline" onClick={() => setViewModalOpen(false)} className="font-bold uppercase tracking-wider">Close</Button>
                 <Button onClick={() => { setViewModalOpen(false); openEdit(viewingWarranty) }} className="font-bold uppercase tracking-wider gap-2">
                   <Edit className="h-4 w-4" /> Edit

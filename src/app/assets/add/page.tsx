@@ -247,18 +247,6 @@ export default function AddAssetPage() {
         dataType: 'Text'
       },
       {
-        id: 'assigned-to-id',
-        name: 'assignedToId',
-        type: 'text',
-        label: 'Assigned To ID',
-        description: 'Employee Internal ID',
-        required: false,
-        included: true,
-        placeholder: 'Automated field',
-        isStandard: false,
-        dataType: 'Text'
-      },
-      {
         id: 'purchase-date',
         name: 'purchaseDate',
         type: 'date',
@@ -268,6 +256,18 @@ export default function AddAssetPage() {
         included: true,
         example: '04/09/2021',
         placeholder: 'Select purchase date',
+        isStandard: true
+      },
+      {
+        id: 'purchased-from',
+        name: 'purchasedFrom',
+        type: 'text',
+        label: 'Purchased From',
+        description: 'Supplier or Vendor',
+        required: false,
+        included: true,
+        example: 'Best Buy',
+        placeholder: 'Enter supplier/vendor',
         isStandard: true
       },
       {
@@ -356,6 +356,19 @@ export default function AddAssetPage() {
         required: false,
         included: true,
         placeholder: 'Enter asset type',
+        isStandard: false,
+        dataType: 'Text'
+      },
+      {
+        id: 'condition',
+        name: 'condition',
+        type: 'select',
+        label: 'Condition',
+        description: 'Asset condition',
+        required: false,
+        included: true,
+        options: ['New', 'Good', 'Fair', 'Poor', 'Broken'],
+        placeholder: 'Select condition',
         isStandard: false,
         dataType: 'Text'
       },
@@ -1220,8 +1233,18 @@ export default function AddAssetPage() {
         department: String(data.department || ''),
         status: "Available" as const,
         assignedTo: String(data.assignedTo || ''),
-        assignedToId: String(data.assignedToId || ''),
+        assignedToId: (() => {
+          const name = String(data.assignedTo || '')
+          if (!name) return ''
+          const emp = apiEmployees?.find(e => 
+            e.name.toLowerCase() === name.toLowerCase() || 
+            `${e.first_name} ${e.last_name}`.toLowerCase() === name.toLowerCase()
+          )
+          return emp ? String(emp.employee_id || emp.id) : ''
+        })(),
         assetType: String(data.assetType || ''),
+        condition: String(data.condition || ''),
+        purchasedFrom: String(data.purchasedFrom || ''),
         notes: String(data.notes || ''),
         imageUrl: imageUrl,
         imageFileName: imageFileName,
@@ -1435,31 +1458,23 @@ export default function AddAssetPage() {
               </FormLabel>
               <div className="space-y-4 mt-2">
                 {/* File Input */}
-                <div className="flex items-center gap-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    onClick={() => console.log('File input clicked')}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    style={{ cursor: 'pointer' }}
-                  />
+                <div className="flex flex-wrap items-center gap-3">
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
+                    className="h-10 px-4 font-bold uppercase tracking-wider border-dashed hover:border-primary/50 hover:bg-primary/5 transition-all group"
                     onClick={() => document.getElementById('image-upload')?.click()}
                   >
-                    <Upload className="h-4 w-4 mr-2" />
+                    <Upload className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
                     Choose File
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
-                    size="sm"
+                    className="h-10 px-4 font-bold uppercase tracking-wider border-dashed hover:border-emerald-500/50 hover:bg-emerald-50/50 transition-all group"
                     onClick={handleGenerateQR}
                   >
-                    <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                     </svg>
                     Generate QR
@@ -1648,7 +1663,7 @@ export default function AddAssetPage() {
                 )}
               </div>
               {field.description && (
-                <p className="text-sm text-muted-foreground mt-1">{field.description}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mt-2 px-1">{field.description}</p>
               )}
             </div>
           )
@@ -1813,7 +1828,6 @@ export default function AddAssetPage() {
                           // If user clears the input
                           if (!value) {
                             formField.onChange("")
-                            form.setValue('assignedToId', "")
                             return
                           }
 
@@ -1825,11 +1839,9 @@ export default function AddAssetPage() {
 
                           if (matchingEmployee) {
                             formField.onChange(matchingEmployee.name)
-                            form.setValue('assignedToId', matchingEmployee.employee_id || matchingEmployee.id)
                           } else {
-                            // Allow custom text but clear the ID
+                            // Allow custom text
                             formField.onChange(value)
-                            form.setValue('assignedToId', "")
                           }
                         }}
                         className="w-full"
@@ -1845,7 +1857,6 @@ export default function AddAssetPage() {
                                 onClick={() => {
                                   setIssuedToSearch(emp.name)
                                   formField.onChange(emp.name)
-                                  form.setValue('assignedToId', emp.employee_id || emp.id)
                                 }}
                               >
                                 {emp.name} ({emp.employee_id || 'No ID'})
@@ -1972,30 +1983,38 @@ export default function AddAssetPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 space-y-4 p-8 pt-6">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h2 className="text-3xl font-bold tracking-tight">Add New Asset</h2>
+        <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8 md:h-10 md:w-10">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="space-y-0.5">
+                <h2 className="text-xl md:text-3xl font-black tracking-tight uppercase">Add New Asset</h2>
+                <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">Register a new item in your inventory</p>
+              </div>
+            </div>
           </div>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid gap-6">
                 {groupFieldsByCategory(fields).map(([categoryName, categoryFields]) => (
-                  <Card key={categoryName}>
-                    <CardHeader>
-                      <CardTitle>{categoryName}</CardTitle>
-                      <CardDescription>
+                  <Card key={categoryName} className="shadow-sm border-border/50 bg-card/50 overflow-hidden">
+                    <CardHeader className="p-4 md:p-6 pb-2 md:pb-3 bg-muted/5 border-b border-border/10">
+                      <CardTitle className="text-lg md:text-xl font-black uppercase tracking-tight flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-primary" />
+                        {categoryName}
+                      </CardTitle>
+                      <CardDescription className="text-[10px] md:text-xs font-bold uppercase tracking-widest opacity-70">
                         {categoryName === 'Additional Information'
                           ? 'Custom fields configured for your assets'
                           : 'Essential asset information for registration'
                         }
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-4 md:grid-cols-2">
+                    <CardContent className="p-4 md:p-6 pt-6 md:pt-8">
+                      <div className="grid gap-x-8 gap-y-6 grid-cols-1 md:grid-cols-2">
                         {categoryFields.map((field) => (
                           <div key={`${categoryName}-${field.name}`} className="w-full">
                             {renderField(field)}

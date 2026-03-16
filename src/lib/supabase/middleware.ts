@@ -50,7 +50,7 @@ export async function updateSession(request: NextRequest) {
 
     // Define public routes that don't require authentication
     const publicRoutes = [
-      '/login',
+      '/',
       '/auth',
       '/api/auth', // Supabase auth callbacks
     ]
@@ -62,15 +62,15 @@ export async function updateSession(request: NextRequest) {
 
     // If user is not authenticated and trying to access protected route
     if (!user && !isPublicRoute) {
-      console.log('Middleware - Redirecting unauthenticated user to /login')
+      console.log('Middleware - Redirecting unauthenticated user to /')
       // Redirect to login page
       const url = request.nextUrl.clone()
-      url.pathname = '/login'
+      url.pathname = '/'
       return NextResponse.redirect(url)
     }
 
-    // If user is authenticated and trying to access login page, redirect to dashboard
-    if (user && request.nextUrl.pathname === '/login') {
+    // If user is authenticated and trying to access root (login page), redirect to dashboard
+    if (user && request.nextUrl.pathname === '/') {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)

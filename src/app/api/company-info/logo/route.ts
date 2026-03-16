@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { isAdminServer } from '@/lib/user-management-server';
 
 export async function POST(request: NextRequest) {
   try {
+    const isAdmin = await isAdminServer();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden. Admin access required.' }, { status: 403 });
+    }
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -76,6 +81,10 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const isAdmin = await isAdminServer();
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden. Admin access required.' }, { status: 403 });
+    }
     const { searchParams } = new URL(request.url);
     const filePath = searchParams.get('path');
 

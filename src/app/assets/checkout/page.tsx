@@ -547,13 +547,16 @@ export default function CheckoutPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 space-y-4 p-8 pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8 md:h-10 md:w-10">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <h2 className="text-3xl font-bold tracking-tight">Check Out Asset</h2>
+              <div className="space-y-0.5">
+                <h2 className="text-xl md:text-3xl font-black tracking-tight uppercase">Check Out Asset</h2>
+                <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">Assign and deploy equipment to staff</p>
+              </div>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               {isLoading ? (
@@ -859,27 +862,32 @@ export default function CheckoutPage() {
           </div>
 
           {/* Set Up Table Card - Exactly match top cards */}
-          <Card className="mt-8 flex flex-col overflow-hidden border">
+          <Card className="mt-8 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
             <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl font-bold tracking-tight">Assignment History</CardTitle>
-                  <CardDescription className="text-muted-foreground text-sm mt-1">Filter, search, and track all active assignments</CardDescription>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    Assignment History
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">
+                    Filter, search, and track all active assignments
+                  </CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex bg-muted p-1 rounded-md border border-border">
-                    <span className="text-[10px] text-muted-foreground px-2 py-1 font-bold">Rows: 10 row</span>
+                <div className="flex items-center gap-2 self-start md:self-center">
+                  <div className="hidden sm:flex bg-muted/30 px-3 py-1.5 rounded-full border border-border/50">
+                    <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest leading-none">Rows: 10 row</span>
                   </div>
-                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-xs h-8 gap-2">
-                    <Filter className="h-3 w-3" /> Add Fields (7)
+                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-[10px] font-bold uppercase tracking-wider h-9 gap-2 px-4 shadow-sm hover:bg-muted transition-all">
+                    <Filter className="h-3.5 w-3.5" /> Add Fields (7)
                   </Button>
                 </div>
               </div>
 
               {/* Toolbar */}
-              <div className="flex flex-wrap items-center gap-3 mt-6">
-                <div className="relative flex-1 min-w-[300px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
+                <div className="relative w-full md:flex-1 group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                   <Input
                     placeholder="Search by name, ID, or asset..."
                     className="pl-10 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground/60 h-10 w-full rounded-md ring-offset-transparent focus-visible:ring-1 focus-visible:ring-primary/50"
@@ -888,27 +896,28 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                {/* Tabs for Work Setup */}
-                <div className="flex bg-muted p-1 rounded-md border border-border">
-                  {(["All", "Onsite", "Temp WFH", "Perma WFH"] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveSetupTab(tab)}
-                      className={cn(
-                        "px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] rounded transition-all duration-200",
-                        activeSetupTab === tab ? "bg-background text-primary shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
+                <ScrollArea orientation="horizontal" className="w-full">
+                  <div className="flex bg-muted p-1 rounded-md border border-border w-max">
+                    {(["All", "Onsite", "Temp WFH", "Perma WFH"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveSetupTab(tab)}
+                        className={cn(
+                          "px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] rounded transition-all duration-200 whitespace-nowrap",
+                          activeSetupTab === tab ? "bg-background text-primary shadow-sm ring-1 ring-border/50" : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </ScrollArea>
               </div>
             </CardHeader>
 
-            <CardContent className="p-0 flex-1 flex flex-col">
-              <ScrollArea className="h-[550px] w-full border-t border-border">
-                <div className="min-w-[1000px]">
+            <CardContent className="p-0 flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+              <ScrollArea orientation="both" className="h-[600px] w-full border-t border-border/40 cursor-grab active:cursor-grabbing">
+                <div className="min-w-[1200px]">
                   <Table>
                     <TableHeader className="sticky top-0 z-30 bg-card">
                       <TableRow className="hover:bg-transparent border-b border-border">

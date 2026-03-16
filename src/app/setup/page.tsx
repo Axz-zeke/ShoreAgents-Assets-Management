@@ -4,8 +4,8 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 import { Cog, Building2, MapPin, FolderOpen, Layers, Users, ArrowRight, Tag, ShieldCheck } from "lucide-react"
 import Link from "next/link"
 
@@ -145,69 +145,63 @@ export default function SetupPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <div className="flex items-center gap-2">
-              <Cog className="h-5 w-5" />
-              <h1 className="text-lg font-semibold">Setup</h1>
-            </div>
-          </div>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild><Link href="/">Home</Link></BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Setup</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </header>
 
-        <ScrollArea className="flex-1 p-4 sm:p-6 md:p-8 pt-0">
-          <div className="flex flex-col gap-4">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild><Link href="/">Home</Link></BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Setup</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">Setup</h1>
-                <p className="text-muted-foreground">
-                  Configuration and customization settings for your asset management system
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {SETUP_ITEMS.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Card key={item.href} className={`group hover:shadow-lg ${item.shadowColor} hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer`}>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${item.bgLight} ${item.bgDark} mr-3 ${item.bgHoverLight} ${item.bgHoverDark} group-hover:scale-110 transition-all duration-300`}>
-                        <Icon className={`h-5 w-5 ${item.textColor} transition-colors duration-300`} />
-                      </div>
-                      <div className="flex-1">
-                        <CardTitle className={`text-sm font-medium ${item.titleHover} transition-colors duration-300`}>{item.title}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className={`text-xs text-muted-foreground ${item.descHover} transition-colors duration-300 mb-4`}>
-                        {item.description}
-                      </p>
-                      <Button asChild className={`w-full ${item.btnHover} group-hover:text-white transition-colors duration-300`}>
-                        <Link href={item.href}>
-                          Configure
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+        <main className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase flex items-center gap-3">
+                <Cog className="h-6 w-6 md:h-8 md:w-8 text-primary" /> Configuration Hub
+              </h1>
+              <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70 mt-1">
+                Customization settings for your asset management system
+              </p>
             </div>
           </div>
-        </ScrollArea>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {SETUP_ITEMS.map((item) => {
+              const Icon = item.icon
+              return (
+                <Card key={item.href} className={`group hover:shadow-lg ${item.shadowColor} hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer`}>
+                  <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${item.bgLight} ${item.bgDark} mr-3 ${item.bgHoverLight} ${item.bgHoverDark} group-hover:scale-110 transition-all duration-300`}>
+                      <Icon className={`h-5 w-5 ${item.textColor} transition-colors duration-300`} />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className={`text-sm font-medium ${item.titleHover} transition-colors duration-300`}>{item.title}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className={`text-xs text-muted-foreground ${item.descHover} transition-colors duration-300 mb-4`}>
+                      {item.description}
+                    </p>
+                    <Button asChild className={`w-full ${item.btnHover} group-hover:text-white transition-colors duration-300`}>
+                      <Link href={item.href}>
+                        Configure
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   )

@@ -251,15 +251,6 @@ export default function AssetsPage() {
   const [isManagePulseOpen, setIsManagePulseOpen] = React.useState(false)
   const [isPulseVisible, setIsPulseVisible] = React.useState(true)
 
-  const DEFAULT_PULSE_ORDER = [
-    'IT EQUIPMENT',
-    'NETWORK EQUIPMENT',
-    'FURNITURE',
-    'ELECTRONICS',
-    'APPLIANCES',
-    'SMOKE ALARMS'
-  ]
-
   // Initialize Pulse settings from localStorage
   React.useEffect(() => {
     try {
@@ -394,17 +385,8 @@ export default function AssetsPage() {
       }
     })
 
-    // Sort by default order first, then by total count for anything not in default
-    return Object.entries(stats).sort((a, b) => {
-      const indexA = DEFAULT_PULSE_ORDER.indexOf(a[0])
-      const indexB = DEFAULT_PULSE_ORDER.indexOf(b[0])
-
-      if (indexA !== -1 && indexB !== -1) return indexA - indexB
-      if (indexA !== -1) return -1
-      if (indexB !== -1) return 1
-
-      return b[1].total - a[1].total
-    })
+    // Sort alphabetically by category name
+    return Object.entries(stats).sort((a, b) => a[0].localeCompare(b[0]))
   }, [assets])
 
   // Derived list of stats based on user ordering and visibility
@@ -847,8 +829,9 @@ export default function AssetsPage() {
 
   return (
     <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
+      <>
+        <AppSidebar />
+        <SidebarInset className="min-w-0 max-w-full overflow-hidden">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -861,7 +844,7 @@ export default function AssetsPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-hidden w-full bg-background relative z-0">
           {isLoading ? (
             <div className="flex items-center justify-center min-h-[400px]">
               <div className="text-center">
@@ -878,23 +861,24 @@ export default function AssetsPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-6 p-8 pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-3xl font-bold tracking-tight text-foreground">Asset Inventory</h2>
-                  <p className="text-muted-foreground font-medium">
+            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-1">
+                  <h2 className="text-xl md:text-3xl font-black tracking-tight uppercase">Asset Inventory</h2>
+                  <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">
                     Manage and track your corporate assets and their lifecycle.
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Button variant="outline" size="icon" onClick={() => setShowQrOptionsDialog(true)}>
-                    <Camera className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="icon" onClick={() => setIsQrScannerOpen(true)} className="md:hidden h-10 w-10">
+                    <Camera className="h-5 w-5" />
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button className="gap-2">
+                      <Button className="h-10 font-bold uppercase tracking-wider gap-2 ml-auto sm:ml-0">
                         <Plus className="h-4 w-4" />
-                        Actions
+                        <span className="hidden xs:inline">Actions</span>
+                        <span className="xs:hidden">Add</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
@@ -1019,14 +1003,14 @@ export default function AssetsPage() {
                 </div>
 
                 {isPulseVisible && (
-                  <ScrollArea className="w-full whitespace-nowrap rounded-lg border-t border-border/5 pt-2">
-                    <div className="flex w-max space-x-4 p-4 pb-8">
+                  <ScrollArea orientation="horizontal" className="w-full max-w-full whitespace-nowrap rounded-lg border-t border-border/5 pt-2 cursor-grab active:cursor-grabbing">
+                    <div className="flex w-max space-x-3 md:space-x-4 p-2 md:p-4 pb-6 md:pb-8">
                       {displayedCategoryStats.map(([cat, stat]) => (
                         <button
                           key={cat}
                           onClick={() => setCategoryFilter(categoryFilter === cat ? "all" : cat)}
                           className={cn(
-                            "group relative flex flex-col p-4 min-w-[200px] rounded-xl border transition-all duration-300",
+                            "group relative flex flex-col p-3 md:p-4 min-w-[170px] md:min-w-[200px] rounded-xl border transition-all duration-300",
                             categoryFilter === cat
                               ? "bg-primary/5 border-primary shadow-[0_0_20px_rgba(var(--primary),0.1)] scale-[1.02]"
                               : "bg-card hover:bg-muted/50 border-border hover:border-muted-foreground/30"
@@ -1111,19 +1095,19 @@ export default function AssetsPage() {
               </div>
 
               {/* Asset List - New UI Style */}
-              <Card className="mt-8 overflow-hidden border">
-                <CardHeader>
+              <Card className="mt-8 overflow-hidden border min-w-0">
+                <CardHeader className="px-4 py-6 md:p-6">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <CardTitle>Asset List</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-xl font-bold uppercase tracking-tight">Asset List</CardTitle>
+                      <CardDescription className="text-xs font-bold uppercase tracking-widest opacity-60">
                         Filter, search, and sort through all your assets
                       </CardDescription>
                     </div>
-                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+                    <div className="flex flex-row items-center gap-2 sm:gap-3 flex-shrink-0">
                       <Select value={rowsPerPage.toString()} onValueChange={(value) => setRowsPerPage(Number(value))}>
-                        <SelectTrigger className="w-full sm:w-[140px] h-10 text-sm">
-                          <span className="text-muted-foreground">Rows:</span>
+                        <SelectTrigger className="w-[100px] sm:w-[140px] h-9 text-xs">
+                          <span className="hidden sm:inline text-muted-foreground mr-1">Rows:</span>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -1136,9 +1120,11 @@ export default function AssetsPage() {
                       </Select>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" className="w-full sm:w-auto h-10 text-sm">
-                            <Columns className="mr-2 h-4 w-4" />
-                            Add Fields ({visibleFields.length})
+                          <Button variant="outline" className="h-9 text-xs font-bold uppercase tracking-wider px-2 sm:px-4">
+                            <Columns className="mr-1 sm:mr-2 h-3.5 w-3.5" />
+                            <span className="hidden sm:inline">Add Fields</span>
+                            <span className="sm:hidden">Fields</span>
+                            ({visibleFields.length})
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-64">
@@ -1163,16 +1149,16 @@ export default function AssetsPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="p-6 pb-0 space-y-4">
-                    <div className="flex flex-col gap-4 sm:flex-row">
+                <CardContent className="p-0 min-w-0">
+                  <div className="p-4 md:p-6 pb-0 space-y-4 min-w-0">
+                    <div className="flex flex-col gap-3 md:gap-4 sm:flex-row min-w-0 flex-shrink-0">
                       <div className="relative flex-1 group">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
                         <Input
-                          placeholder="Search assets by name, ID, location, or assigned to..."
+                          placeholder="Search assets..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10 pr-10 focus-visible:ring-primary/30"
+                          className="pl-10 pr-10 focus-visible:ring-primary/30 h-10"
                         />
                         <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
                           <Button
@@ -1291,7 +1277,7 @@ export default function AssetsPage() {
                     </div>
 
                     {/* Assets Table (Hidden on small screens) */}
-                    <div className="hidden md:block overflow-x-auto border-t border-border mt-6">
+                    <div className="hidden md:block overflow-x-auto border-t border-border mt-6 w-full">
                       <Table>
                         <TableHeader className="sticky top-0 z-30 bg-card">
                           <TableRow className="hover:bg-transparent border-b border-border">
@@ -1640,7 +1626,7 @@ export default function AssetsPage() {
 
       {/* Asset Details Dialog */}
       < Dialog open={isAssetDetailsOpen} onOpenChange={setIsAssetDetailsOpen} >
-        <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col">
+        <DialogContent className="max-w-[95vw] sm:max-w-[90vw] md:max-w-4xl w-full h-[90vh] p-0 flex flex-col overflow-hidden">
           <DialogHeader className="px-6 py-4 border-b">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -1694,8 +1680,8 @@ export default function AssetsPage() {
                       <div className="flex justify-center">
                         {selectedAsset?.imageUrl ? (
                           <img
-                            src={selectedAsset.imageUrl}
-                            alt={selectedAsset.name}
+                            src={selectedAsset!.imageUrl!}
+                            alt={selectedAsset!.name!}
                             className="max-w-full max-h-64 object-contain rounded-lg border shadow-sm"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
@@ -1711,10 +1697,10 @@ export default function AssetsPage() {
                               }
                             }}
                           />
-                        ) : selectedAsset.imageFileName ? (
+                        ) : selectedAsset!.imageFileName ? (
                           <div className="flex flex-col items-center justify-center p-8 text-muted-foreground border-2 border-dashed rounded-lg">
                             <ImageIcon className="h-12 w-12 mb-2 opacity-50" />
-                            <p className="text-sm font-medium">{selectedAsset.imageFileName}</p>
+                            <p className="text-sm font-medium">{selectedAsset!.imageFileName}</p>
                             <p className="text-xs text-muted-foreground mt-1">Image file uploaded</p>
                             <p className="text-xs text-muted-foreground mt-2">Click Edit to add image URL</p>
                           </div>
@@ -1739,11 +1725,11 @@ export default function AssetsPage() {
                     </CardHeader>
                     <CardContent className="p-6 pt-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Asset Tag ID</p>
-                          <p className="text-sm font-mono font-semibold">{selectedAsset.id}</p>
+                          <p className="text-sm font-mono font-semibold break-all">{selectedAsset.id}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Asset Name</p>
                           {isEditing ? (
                             <Input
@@ -1752,10 +1738,10 @@ export default function AssetsPage() {
                               className="text-sm h-8"
                             />
                           ) : (
-                            <p className="text-sm font-medium">{selectedAsset.name || 'N/A'}</p>
+                            <p className="text-sm font-medium break-words">{selectedAsset.name || 'N/A'}</p>
                           )}
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Category</p>
                           {isEditing ? (
                             <Input
@@ -1764,10 +1750,10 @@ export default function AssetsPage() {
                               className="text-sm h-8"
                             />
                           ) : (
-                            <p className="text-sm">{selectedAsset.category || 'N/A'}</p>
+                            <p className="text-sm truncate">{selectedAsset.category || 'N/A'}</p>
                           )}
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Sub Category</p>
                           {isEditing ? (
                             <Input
@@ -1776,10 +1762,10 @@ export default function AssetsPage() {
                               className="text-sm h-8"
                             />
                           ) : (
-                            <p className="text-sm">{selectedAsset.subCategory || 'N/A'}</p>
+                            <p className="text-sm truncate">{selectedAsset.subCategory || 'N/A'}</p>
                           )}
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Status</p>
                           {isEditing ? (
                             <Select value={editedAsset?.status || ''} onValueChange={(value) => handleFieldChange('status', value)}>
@@ -1804,7 +1790,7 @@ export default function AssetsPage() {
                             </Badge>
                           )}
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Asset Type</p>
                           {isEditing ? (
                             <Input
@@ -1813,7 +1799,7 @@ export default function AssetsPage() {
                               className="text-sm h-8"
                             />
                           ) : (
-                            <p className="text-sm">{selectedAsset.assetType || 'N/A'}</p>
+                            <p className="text-sm truncate">{selectedAsset.assetType || 'N/A'}</p>
                           )}
                         </div>
                       </div>
@@ -2080,15 +2066,15 @@ export default function AssetsPage() {
                     </CardHeader>
                     <CardContent className="pt-0">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Created At</p>
                           <p className="text-sm text-muted-foreground">{selectedAsset.createdAt ? formatDateTime(selectedAsset.createdAt) : 'N/A'}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Last Updated</p>
                           <p className="text-sm text-muted-foreground">{selectedAsset.updatedAt ? formatDateTime(selectedAsset.updatedAt) : 'N/A'}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Image URL</p>
                           {isEditing ? (
                             <Input
@@ -2110,7 +2096,7 @@ export default function AssetsPage() {
                             <p className="text-sm text-muted-foreground">N/A</p>
                           )}
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                           <p className="text-xs font-medium text-muted-foreground">Image File Name</p>
                           {isEditing ? (
                             <Input
@@ -2404,6 +2390,7 @@ export default function AssetsPage() {
         description="Are you sure you want to delete this asset? This action cannot be undone and will permanently remove the asset from your inventory."
         itemName={deletingAsset?.id || deletingAsset?.name}
       />
+      </>
     </SidebarProvider>
   )
 }

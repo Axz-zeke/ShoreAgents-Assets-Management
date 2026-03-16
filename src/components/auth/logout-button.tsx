@@ -21,7 +21,7 @@ export function LogoutButton() {
       }
 
       toast.success("Signed out successfully")
-      router.push("/login")
+      router.push("/")
       router.refresh()
     } catch (error) {
       console.error("Logout error:", error)

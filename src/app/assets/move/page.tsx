@@ -914,26 +914,27 @@ export default function MoveAssetPage() {
           </div>
 
           {/* Movement History Table */}
-          <Card className="mt-8 flex flex-col overflow-hidden border">
+          <Card className="mt-8 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
             <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
                     <History className="h-5 w-5 text-amber-500" />
                     Asset Movement History
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground text-sm mt-1">Recently moved assets and their transfer details</CardDescription>
+                  <CardDescription className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">
+                    Recently moved assets and their transfer details
+                  </CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-xs h-8 gap-2">
-                    <Download className="h-3 w-3" /> Export Table
+                <div className="flex items-center gap-2 self-start md:self-center">
+                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-[10px] font-bold uppercase tracking-wider h-9 gap-2 px-4 shadow-sm hover:bg-muted transition-all">
+                    <Download className="h-3.5 w-3.5" /> Export Table
                   </Button>
                 </div>
               </div>
 
-              {/* Toolbar */}
-              <div className="flex flex-wrap items-center gap-3 mt-6">
-                <div className="relative flex-1 min-w-[300px] group">
+              <div className="flex flex-col gap-4 mt-6 w-full min-w-0">
+                <div className="relative w-full md:flex-1 group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                   <Input
                     placeholder="Search movement history..."
@@ -945,9 +946,9 @@ export default function MoveAssetPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="p-0 flex-1 flex flex-col">
-              <ScrollArea className="h-[500px] w-full border-t border-border shadow-inner">
-                <div className="min-w-[1100px]">
+            <CardContent className="p-0 flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+              <ScrollArea orientation="both" className="h-[500px] w-full border-t border-border shadow-inner cursor-grab active:cursor-grabbing">
+                <div className="min-w-[1200px]">
                   <Table>
                     <TableHeader className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b">
                       <TableRow className="hover:bg-transparent">

@@ -50,11 +50,11 @@ export default function Page() {
       try {
         const { data: { user }, error } = await supabase.auth.getUser()
         if (error || !user) {
-          router.push('/login')
+          router.push('/')
           router.refresh()
         }
       } catch (error) {
-        router.push('/login')
+        router.push('/')
       }
     }
     checkAuth()
@@ -120,8 +120,8 @@ export default function Page() {
         <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-black tracking-tight uppercase">Monitoring Center</h1>
-              <p className="text-muted-foreground text-sm font-bold uppercase tracking-widest opacity-70">
+              <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase">Monitoring Center</h1>
+              <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70 mt-1">
                 Asset Movement & System Health Overview
               </p>
             </div>

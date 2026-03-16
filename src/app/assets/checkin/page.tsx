@@ -356,12 +356,17 @@ export default function CheckinPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 space-y-4 p-8 pt-6">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h2 className="text-3xl font-bold tracking-tight">Asset Check In</h2>
+        <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8 md:h-10 md:w-10">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <div className="space-y-0.5">
+                <h2 className="text-xl md:text-3xl font-black tracking-tight uppercase">Asset Check In</h2>
+                <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70">Process returned equipment back into inventory</p>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 items-stretch">
@@ -598,29 +603,33 @@ export default function CheckinPage() {
           </div>
 
           {/* Recent Returns Table */}
-          <Card className="mt-8 flex flex-col overflow-hidden border">
+          <Card className="mt-8 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
             <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
-                    <History className="h-5 w-5 text-amber-500" />
-                    Recent Intake History
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl md:text-2xl font-black uppercase tracking-tight flex items-center gap-2">
+                    <History className="h-5 w-5 md:h-6 md:w-6 text-amber-500" />
+                    Intake History
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground text-sm mt-1">Recently processed assets and their return status</CardDescription>
+                  <CardDescription className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-wider opacity-70">
+                    Recently processed assets and their return status
+                  </CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex bg-muted p-1 rounded-md border border-border">
-                    <span className="text-[10px] text-muted-foreground px-2 py-1 font-bold">Today: 5 intake</span>
+                <div className="flex flex-row items-center gap-2 self-start md:self-center flex-wrap sm:flex-nowrap">
+                  <div className="bg-amber-500/10 px-3 py-2 rounded-lg border border-amber-500/20 whitespace-nowrap">
+                    <span className="text-[10px] text-amber-500 font-black uppercase tracking-widest leading-none flex items-center gap-2">
+                      <Zap className="h-3 w-3" /> Today: 5 intake
+                    </span>
                   </div>
-                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-xs h-8 gap-2">
-                    <Download className="h-3 w-3" /> Export Table
+                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-[10px] font-bold uppercase tracking-wider h-10 gap-2 px-4 shadow-sm hover:bg-muted transition-all whitespace-nowrap">
+                    <Download className="h-3.5 w-3.5" /> Export Table
                   </Button>
                 </div>
               </div>
 
               {/* Toolbar */}
-              <div className="flex flex-wrap items-center gap-3 mt-6">
-                <div className="relative flex-1 min-w-[300px] group">
+              <div className="flex flex-col gap-4 mt-6 w-full min-w-0">
+                <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                   <Input
                     placeholder="Search recent intake history..."
@@ -629,28 +638,33 @@ export default function CheckinPage() {
                     className="pl-10 bg-muted/30 border-border text-foreground placeholder:text-muted-foreground/60 h-10 w-full rounded-md ring-offset-transparent focus-visible:ring-1 focus-visible:ring-primary/50"
                   />
                 </div>
-                <div className="flex bg-muted/50 p-1 rounded-md border border-border">
-                  {(["All", "Good", "Excellent", "Fair", "Damaged"] as const).map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setHistoryFilter(tab)}
-                      className={cn(
-                        "px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] rounded transition-all duration-200",
-                        historyFilter === tab
-                          ? "bg-background text-primary shadow-sm ring-1 ring-border/50"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {tab}
-                    </button>
-                  ))}
+                <div className="w-full overflow-hidden min-w-0">
+                  <ScrollArea orientation="horizontal" className="w-full">
+                    <div className="flex bg-muted/50 p-1 rounded-md border border-border w-max flex-nowrap touch-pan-x">
+                      {(["All", "Good", "Excellent", "Fair", "Damaged"] as const).map((tab, idx) => (
+                        <button
+                          key={tab}
+                          onClick={() => setHistoryFilter(tab)}
+                          className={cn(
+                            "px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] rounded transition-all duration-200 whitespace-nowrap flex-shrink-0",
+                            historyFilter === tab
+                              ? "bg-background text-primary shadow-sm ring-1 ring-border/50"
+                              : "text-muted-foreground hover:text-foreground",
+                            idx === 4 && "mr-2"
+                          )}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 </div>
               </div>
             </CardHeader>
 
-            <CardContent className="p-0 flex-1 flex flex-col">
-              <ScrollArea className="h-[400px] w-full border-t border-border">
-                <div className="min-w-[1000px]">
+            <CardContent className="p-0 flex-1 flex flex-col min-h-0 min-w-0 overflow-hidden">
+              <ScrollArea orientation="both" className="h-[550px] w-full border-t border-border/40 cursor-grab active:cursor-grabbing">
+                <div className="min-w-[1200px]">
                   <Table>
                     <TableHeader className="sticky top-0 z-30 bg-card/80 backdrop-blur-sm border-b overflow-hidden">
                       <TableRow className="hover:bg-transparent border-b border-border transition-colors">

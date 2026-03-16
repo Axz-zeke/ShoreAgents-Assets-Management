@@ -12,22 +12,20 @@ const assetSchema = z.object({
   sub_category: z.string().optional(),
   location: z.string().optional(),
   site: z.string().optional(),
-  status: z.enum(["Available", "In Use", "Move", "Reserved", "Disposed", "Maintenance"]).optional().default("Available"),
+  // Accept all status values used by the application
+  status: z.enum(["Available", "Check Out", "In Use", "Move", "Reserve", "Reserved", "Lease", "Dispose", "Disposed", "Maintenance"]).optional().default("Available"),
   cost: z.number().optional().default(0),
   purchase_date: z.string().optional().nullable(),
   date_acquired: z.string().optional().nullable(),
   assigned_to: z.string().optional().nullable(),
-  assigned_to_id: z.string().uuid().optional().nullable(),
+  // assigned_to_id can be an employee_id string (e.g. "EMP001") OR a UUID — don't enforce uuid()
+  assigned_to_id: z.string().optional().nullable(),
   department: z.string().optional(),
   brand: z.string().optional(),
   model: z.string().optional(),
   serial_number: z.string().optional(),
   manufacturer: z.string().optional(),
   notes: z.string().optional(),
-  floor: z.string().optional(),
-  condition: z.string().optional(),
-  transfer_method: z.string().optional(),
-  authorized_by: z.string().optional(),
   asset_type: z.string().optional(),
   image_url: z.string().optional(),
   image_file_name: z.string().optional(),
@@ -116,21 +114,68 @@ export async function POST(request: NextRequest) {
     const supabase = supabaseAdmin
     const body = await request.json()
 
+    // Map camelCase to snake_case
+    const mappedBody = {
+      ...body,
+      sub_category: body.sub_category || body.subCategory,
+      purchase_date: body.purchase_date || body.purchaseDate,
+      date_acquired: body.date_acquired || body.dateAcquired,
+      assigned_to: body.assigned_to || body.assignedTo,
+      assigned_to_id: body.assigned_to_id || body.assignedToId,
+      serial_number: body.serial_number || body.serialNumber,
+      asset_type: body.asset_type || body.assetType,
+      condition: body.condition,
+      purchased_from: body.purchased_from || body.purchasedFrom,
+      image_url: body.image_url || body.imageUrl,
+      image_file_name: body.image_file_name || body.imageFileName,
+      qr_url: body.qr_url || body.qrUrl,
+      transfer_method: body.transfer_method || body.transferMethod,
+      authorized_by: body.authorized_by || body.authorizedBy,
+    }
+
     // Validate with Zod
-    const result = assetSchema.safeParse(body)
+    const result = assetSchema.safeParse(mappedBody)
     if (!result.success) {
+      const details = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join("; ")
+      console.error("Asset validation error:", details)
       return NextResponse.json({
         error: "Validation error",
-        details: result.error.issues.map(i => i.message).join(", ")
+        details
       }, { status: 400 })
     }
 
     const validatedData = result.data
 
-    // Prepare asset data
+    // Helper: treat empty strings as null (prevents "invalid input syntax for type uuid: """ DB errors)
+    const nullIfEmpty = (v: string | null | undefined) => (v === '' || v == null ? null : v)
+
+    // Only include columns that are known to exist in the 'assets' DB table.
+    // This prevents errors from fields present in the form/schema but absent from the DB.
     const assetData = {
-      ...validatedData,
-      // Ensure specific fields if needed
+      asset_tag_id: validatedData.asset_tag_id,
+      name: validatedData.name,
+      description: nullIfEmpty(validatedData.description),
+      category: nullIfEmpty(validatedData.category),
+      sub_category: nullIfEmpty(validatedData.sub_category),
+      location: nullIfEmpty(validatedData.location),
+      site: nullIfEmpty(validatedData.site),
+      status: validatedData.status,
+      cost: validatedData.cost,
+      purchase_date: nullIfEmpty(validatedData.purchase_date),
+      date_acquired: nullIfEmpty(validatedData.date_acquired),
+      assigned_to: nullIfEmpty(validatedData.assigned_to),
+      // UUID column: MUST be null or a valid UUID — never an empty string
+      assigned_to_id: nullIfEmpty(validatedData.assigned_to_id),
+      department: nullIfEmpty(validatedData.department),
+      brand: nullIfEmpty(validatedData.brand),
+      model: nullIfEmpty(validatedData.model),
+      serial_number: nullIfEmpty(validatedData.serial_number),
+      manufacturer: nullIfEmpty(validatedData.manufacturer),
+      notes: nullIfEmpty(validatedData.notes),
+      asset_type: nullIfEmpty(validatedData.asset_type),
+      image_url: nullIfEmpty(validatedData.image_url),
+      image_file_name: nullIfEmpty(validatedData.image_file_name),
+      qr_url: nullIfEmpty(validatedData.qr_url),
     }
 
     const { data: asset, error } = await supabase

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
+import { isAdminServer } from '@/lib/user-management-server'
 
 // Helper to convert data to CSV
 function convertToCSV(data: any[], fields: string[]): string {
@@ -70,6 +72,10 @@ function getFields(params: URLSearchParams) {
 
 export async function GET(request: NextRequest) {
   try {
+    const isAdmin = await isAdminServer()
+    if (!isAdmin) {
+      return NextResponse.json({ error: 'Forbidden. Admin access required.' }, { status: 403 })
+    }
     const { searchParams } = new URL(request.url)
     const format = searchParams.get('format') || 'csv'
     const status = searchParams.get('status') || 'all'

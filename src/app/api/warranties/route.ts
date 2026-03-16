@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
+import { createClient } from "@/lib/supabase/server"
 
 // GET /api/warranties - Fetch all warranty records
 export async function GET(request: NextRequest) {
     try {
+        const supabaseSession = await createClient()
+        const { data: { user } } = await supabaseSession.auth.getUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const supabase = supabaseAdmin
         const { searchParams } = new URL(request.url)
         const assetId = searchParams.get("asset_id")
@@ -66,6 +73,12 @@ export async function GET(request: NextRequest) {
 // POST /api/warranties - Create a new warranty
 export async function POST(request: NextRequest) {
     try {
+        const supabaseSession = await createClient()
+        const { data: { user } } = await supabaseSession.auth.getUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const supabase = supabaseAdmin
         const body = await request.json()
 

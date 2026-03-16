@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
+import { isAdminServer } from '@/lib/user-management-server'
 import { z } from 'zod'
-
-// Create a service-role client to bypass RLS for administrative setup
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 const employeeSchema = z.object({
     employee_id: z.string().min(1, 'Employee ID is required'),
@@ -26,6 +22,11 @@ const employeeSchema = z.object({
 
 export async function GET() {
     try {
+        const supabaseSession = await createClient()
+        const { data: { user } } = await supabaseSession.auth.getUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
         // Fetch employees with asset counts using Supabase direct query
         const { data: employees, error } = await supabaseAdmin
             .from('employees')
@@ -52,6 +53,10 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
     try {
+        const isAdmin = await isAdminServer()
+        if (!isAdmin) {
+            return NextResponse.json({ success: false, error: 'Forbidden. Admin access required.' }, { status: 403 })
+        }
         const body = await req.json()
         console.log('API POST - Received body:', body)
 

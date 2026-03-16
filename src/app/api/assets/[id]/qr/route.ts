@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
+import { createClient } from "@/lib/supabase/server"
 
 /**
  * POST /api/assets/[id]/qr
@@ -22,6 +23,12 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const supabaseSession = await createClient()
+        const { data: { user } } = await supabaseSession.auth.getUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id: assetTagId } = await params
 
         // Optionally accept the database UUID from the body (avoids extra DB round-trip)
@@ -156,6 +163,12 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const supabaseSession = await createClient()
+        const { data: { user } } = await supabaseSession.auth.getUser()
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        }
+
         const { id: assetTagId } = await params
 
         const { data: asset, error } = await supabaseAdmin

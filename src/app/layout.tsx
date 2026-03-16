@@ -7,6 +7,8 @@ import { SystemSettingsProvider } from "@/contexts/system-settings-context"
 
 import { Toaster } from "sonner"
 
+import { cn } from "@/lib/utils"
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -21,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={cn(inter.className, "overflow-x-hidden")}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

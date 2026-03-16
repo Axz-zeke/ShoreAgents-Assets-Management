@@ -237,12 +237,14 @@ export default function AdministratorsPage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 space-y-4 p-4 pt-6 md:p-8">
-          <div className="flex items-center justify-between">
+        <main className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Administrators</h1>
-              <p className="text-muted-foreground">
-                Manage system access and roles for administrative staff.
+              <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase flex items-center gap-3">
+                <ShieldCheck className="h-6 w-6 md:h-8 md:w-8 text-primary" /> Administrators
+              </h1>
+              <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70 mt-1">
+                Manage system access and roles for administrative staff
               </p>
             </div>
             

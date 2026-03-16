@@ -28,6 +28,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
 import { Folder, Save, Building2, Upload, Image as ImageIcon, Settings, Globe, DollarSign } from "lucide-react"
 import { toast } from "sonner"
 
@@ -340,43 +341,36 @@ export default function CompanyInfoPage() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <div className="flex items-center gap-2">
-              <Folder className="h-5 w-5" />
-              <h1 className="text-lg font-semibold">Company Info.</h1>
-            </div>
-          </div>
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild><Link href="/">Home</Link></BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild><Link href="/setup">Setup</Link></BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Company Info</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
         </header>
 
-        <ScrollArea className="flex-1 p-4 sm:p-6 md:p-8 pt-0">
-          <div className="flex flex-col gap-4">
-            {/* Breadcrumb */}
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild ><Link href="/">Home</Link></BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild ><Link href="/setup">Setup</Link></BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Company Info.</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            {/* Page Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">Company Information</h1>
-                <p className="text-muted-foreground">
-                  Manage your company profile details and system settings
-                </p>
-              </div>
+        <main className="flex-1 space-y-6 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-xl md:text-3xl font-black tracking-tight uppercase flex items-center gap-3">
+                <Building2 className="h-6 w-6 md:h-8 md:w-8 text-primary" /> Company Info
+              </h1>
+              <p className="text-muted-foreground text-[10px] md:text-sm font-bold uppercase tracking-widest opacity-70 mt-1">
+                Manage your company profile details and system settings
+              </p>
+            </div>
               <div className="flex gap-2">
                 {isEditing ? (
                   <>
@@ -699,9 +693,7 @@ export default function CompanyInfoPage() {
                 </div>
               </CardContent>
             </Card>
-
-          </div>
-        </ScrollArea>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   )

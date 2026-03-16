@@ -312,23 +312,23 @@ export default function MaintenancePage() {
           </Breadcrumb>
         </header>
 
-        <main className="flex-1 space-y-10 p-8 pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => router.back()}>
+        <main className="flex-1 space-y-6 md:space-y-10 p-4 md:p-8 pt-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8 md:h-10 md:w-10">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <h2 className="text-3xl font-bold tracking-tight">Maintenance</h2>
+              <h2 className="text-xl md:text-3xl font-black tracking-tight uppercase">Maintenance</h2>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-primary border-primary bg-primary/5 uppercase tracking-wider font-bold text-[10px] px-3 h-6">
+            <div className="flex items-center gap-3 self-start md:self-center">
+              <Badge variant="outline" className="text-primary border-primary bg-primary/5 uppercase tracking-wider font-bold text-[9px] md:text-[10px] px-3 h-6">
                 Technical Management
               </Badge>
             </div>
           </div>
 
           {/* Quick Stats Section */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             <Card className="bg-muted/20 border-border/50">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between space-y-0 pb-2">
@@ -396,7 +396,7 @@ export default function MaintenancePage() {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 items-stretch">
             {/* Asset Selection */}
-            <Card className="lg:col-span-3 flex flex-col">
+            <Card className="lg:col-span-3 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
               <CardHeader>
                 <CardTitle className="text-xl flex items-center gap-2">
                   <Plus className="h-5 w-5" />
@@ -438,9 +438,9 @@ export default function MaintenancePage() {
                                   className="flex items-center justify-between p-3 hover:bg-primary/10 cursor-pointer transition-colors rounded-lg group/item"
                                   onClick={() => addAsset(a.id)}
                                 >
-                                  <div className="flex flex-col">
-                                    <span className="font-bold text-sm group-hover/item:text-primary transition-colors">{a.id}</span>
-                                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{a.name} • {a.status}</span>
+                                  <div className="flex flex-col min-w-0 flex-1 mr-2">
+                                    <span className="font-bold text-sm group-hover/item:text-primary transition-colors truncate">{a.id}</span>
+                                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider truncate">{a.name} • {a.status}</span>
                                   </div>
                                   <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity">
                                     <Plus className="h-3 w-3 text-primary" />
@@ -500,10 +500,10 @@ export default function MaintenancePage() {
             </Card>
 
             {/* Maintenance Logic */}
-            <div className="lg:col-span-4 h-full">
+            <div className="lg:col-span-4 h-full min-w-0">
               <Form {...form}>
                 <form onSubmit={handleFormSubmit} className="space-y-4 h-full flex flex-col">
-                  <Card className="flex-1 flex flex-col">
+                  <Card className="flex-1 flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
                     <CardHeader>
                       <CardTitle className="text-xl flex items-center gap-2">
                         <Wrench className="h-5 w-5 text-primary" />
@@ -679,14 +679,14 @@ export default function MaintenancePage() {
                         control={form.control}
                         name="isRepeating"
                         render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 bg-muted/20">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-sm font-bold uppercase tracking-[0.1em]">Recurring Event</FormLabel>
-                              <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Schedule this as a repeating technical task?</div>
+                          <FormItem className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-2xl border border-primary/10 p-4 bg-primary/5 gap-4">
+                            <div className="space-y-1">
+                              <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/80">Recurring Event</FormLabel>
+                              <div className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider opacity-60 leading-relaxed">Schedule this as a repeating technical task?</div>
                             </div>
                             <FormControl>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger className="w-[100px] h-9 font-bold text-xs">
+                                <SelectTrigger className="w-full sm:w-[100px] h-9 font-black text-[10px] uppercase tracking-widest bg-background/50 border-primary/20">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -700,14 +700,21 @@ export default function MaintenancePage() {
                       />
 
 
-                      <div className="mt-auto pt-6 flex justify-end gap-3 border-t">
-                        <Button type="button" variant="ghost" onClick={() => router.push("/assets")} className="h-10 px-6 font-bold uppercase tracking-widest text-[10px]">Back to assets</Button>
+                      <div className="mt-auto pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/50">
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          onClick={() => router.push("/assets")} 
+                          className="w-full sm:w-auto h-11 px-8 font-black uppercase tracking-[0.2em] text-[10px] text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all"
+                        >
+                          Back to assets
+                        </Button>
                         <Button
                           type="submit"
                           disabled={isSubmitting || selectedIds.length === 0}
-                          className="min-w-[180px] h-10 font-bold uppercase tracking-wider text-[10px] shadow-lg shadow-primary/20 transition-all active:scale-95"
+                          className="w-full sm:min-w-[200px] h-11 font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-primary/20 transition-all active:scale-95 bg-primary hover:bg-primary/90"
                         >
-                          {isSubmitting ? "Processing..." : `Issue Ticket (${selectedIds.length})`}
+                          {isSubmitting ? "Authorizing..." : `Issue Ticket (${selectedIds.length})`}
                         </Button>
                       </div>
                     </CardContent>
@@ -718,26 +725,26 @@ export default function MaintenancePage() {
           </div>
 
           {/* Maintenance Tracking Log */}
-          <Card className="flex flex-col overflow-hidden border shadow-sm">
+          <Card className="flex flex-col w-full max-w-full overflow-hidden border shadow-sm">
             <CardHeader className="pb-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-xl font-bold tracking-tight flex items-center gap-2">
-                    <History className="h-5 w-5 text-primary" />
-                    Maintenance Tracking Log
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div className="space-y-1 min-w-0 flex-1">
+                  <CardTitle className="text-base md:text-xl font-black uppercase tracking-tight flex items-start sm:items-center gap-2 leading-tight">
+                    <History className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0 mt-0.5 sm:mt-0" />
+                    <span>Maintenance Tracking Log</span>
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground text-xs mt-1 font-medium">Consolidated history of technical services and life-cycle events</CardDescription>
+                  <CardDescription className="text-muted-foreground text-[10px] md:text-xs font-bold uppercase tracking-wider opacity-70">Consolidated history of technical services and life-cycle events</CardDescription>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-[10px] h-8 gap-2 font-bold uppercase tracking-wider">
-                    <Download className="h-3 w-3" /> Export Archive
+                <div className="flex items-center gap-2 self-start sm:self-center">
+                  <Button variant="outline" size="sm" className="bg-muted/50 border-border text-[10px] font-bold uppercase tracking-wider h-9 gap-2 px-4 shadow-sm hover:bg-muted transition-all">
+                    <Download className="h-3.5 w-3.5" /> Export Archive
                   </Button>
                 </div>
               </div>
 
               {/* Toolbar */}
-              <div className="flex flex-wrap items-center gap-3 mt-8">
-                <div className="relative flex-1 min-w-[300px] group">
+              <div className="flex flex-col md:flex-row md:items-center gap-4 mt-6">
+                <div className="relative w-full group">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
                   <Input
                     placeholder="Search by title, asset, provider or notes..."
@@ -749,8 +756,8 @@ export default function MaintenancePage() {
               </div>
             </CardHeader>
 
-            <CardContent className="p-0 border-t">
-              <ScrollArea className="h-[500px] w-full">
+            <CardContent className="p-0 border-t min-h-0 min-w-0 overflow-hidden">
+              <ScrollArea orientation="both" className="h-[550px] w-full cursor-grab active:cursor-grabbing">
                 <div className="min-w-[1000px]">
                   <Table>
                     <TableHeader className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b">
