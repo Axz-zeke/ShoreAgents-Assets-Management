@@ -36,6 +36,7 @@ import {
 import {
   SidebarProvider,
   SidebarInset,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
@@ -135,10 +136,12 @@ export default function AnalyticsPage() {
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4 hidden md:block" />
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink asChild ><Link href="/dashboard">
+                  <BreadcrumbLink asChild><Link href="/dashboard">
                     Dashboard
                   </Link></BreadcrumbLink>
                 </BreadcrumbItem>
@@ -155,16 +158,16 @@ export default function AnalyticsPage() {
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           {/* Header Controls */}
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm md:text-base text-muted-foreground mr-0 md:mr-4">
                 Comprehensive insights into your asset management system
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <Select value={timeRange} onValueChange={setTimeRange}>
-                <SelectTrigger className="w-[140px]">
+                <SelectTrigger className="w-full sm:w-[140px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -175,7 +178,7 @@ export default function AnalyticsPage() {
                 </SelectContent>
               </Select>
               <Select value={chartType} onValueChange={setChartType}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-full sm:w-[120px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -259,13 +262,13 @@ export default function AnalyticsPage() {
             {/* Asset Value Trend */}
             <Card className="hover:shadow-md transition-all duration-300 ease-in-out">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                   <div className="flex items-center gap-2">
                     <LineChartIcon className="h-5 w-5" />
                     <CardTitle>Asset Value Trend</CardTitle>
                   </div>
                   <Select value={assetValueChartType} onValueChange={setAssetValueChartType}>
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-full sm:w-[120px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -279,8 +282,8 @@ export default function AnalyticsPage() {
                   Asset portfolio value and depreciation over time
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <ChartContainer config={chartConfig} className="h-[350px] w-full">
+              <CardContent className="p-2 sm:p-6 min-w-0 overflow-hidden">
+                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[350px] w-full min-w-0">
                   {assetValueChartType === "bar" ? (
                     <BarChart data={assetValueData}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -331,13 +334,13 @@ export default function AnalyticsPage() {
             {/* Asset Status Distribution */}
             <Card className="hover:shadow-md transition-all duration-300 ease-in-out">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                   <div className="flex items-center gap-2">
                     <PieChartIcon className="h-5 w-5" />
                     <CardTitle>Asset Status Distribution</CardTitle>
                   </div>
                   <Select value={statusChartType} onValueChange={setStatusChartType}>
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-full sm:w-[120px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -351,9 +354,9 @@ export default function AnalyticsPage() {
                   Current status breakdown of all assets
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="h-[350px] w-full flex flex-col">
-                  <ChartContainer config={chartConfig} className="h-[200px] w-full flex-1">
+              <CardContent className="p-2 sm:p-6 min-w-0 overflow-hidden">
+                <div className="h-[250px] sm:h-[350px] w-full flex flex-col min-w-0">
+                  <ChartContainer config={chartConfig} className="min-h-[150px] sm:h-[200px] w-full flex-1 min-w-0">
                     {statusChartType === "pie" ? (
                       <PieChart>
                         <Pie
@@ -441,13 +444,13 @@ export default function AnalyticsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card className="hover:shadow-md transition-all duration-300 ease-in-out">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                   <div className="flex items-center gap-2">
                     <BarChart3 className="h-5 w-5" />
                     <CardTitle>Department Asset Distribution</CardTitle>
                   </div>
                   <Select value={departmentChartType} onValueChange={setDepartmentChartType}>
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-full sm:w-[120px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -461,8 +464,8 @@ export default function AnalyticsPage() {
                   Assets and values by department
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <ChartContainer config={chartConfig} className="h-[350px] w-full">
+              <CardContent className="p-2 sm:p-6 min-w-0 overflow-hidden">
+                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[350px] w-full min-w-0">
                   {departmentChartType === "bar" ? (
                     <BarChart data={departmentData}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -521,13 +524,13 @@ export default function AnalyticsPage() {
 
             <Card className="hover:shadow-md transition-all duration-300 ease-in-out">
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                   <div className="flex items-center gap-2">
                     <Activity className="h-5 w-5" />
                     <CardTitle>Daily Utilization Pattern</CardTitle>
                   </div>
                   <Select value={utilizationChartType} onValueChange={setUtilizationChartType}>
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-full sm:w-[120px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -541,8 +544,8 @@ export default function AnalyticsPage() {
                   Asset utilization throughout the day
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6">
-                <ChartContainer config={chartConfig} className="h-[350px] w-full">
+              <CardContent className="p-2 sm:p-6 min-w-0 overflow-hidden">
+                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[350px] w-full min-w-0">
                   {utilizationChartType === "area" ? (
                     <AreaChart data={utilizationData}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -605,13 +608,13 @@ export default function AnalyticsPage() {
           {/* Maintenance Trends */}
           <Card className="hover:shadow-md transition-all duration-300 ease-in-out">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                 <div className="flex items-center gap-2">
                   <Wrench className="h-5 w-5" />
                   <CardTitle>Maintenance Trends</CardTitle>
                 </div>
                 <Select value={maintenanceChartType} onValueChange={setMaintenanceChartType}>
-                  <SelectTrigger className="w-[120px]">
+                  <SelectTrigger className="w-full sm:w-[120px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -625,8 +628,8 @@ export default function AnalyticsPage() {
                 Scheduled vs emergency maintenance over time
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
-              <ChartContainer config={chartConfig} className="h-[350px] w-full">
+            <CardContent className="p-2 sm:p-6 min-w-0 overflow-hidden">
+              <ChartContainer config={chartConfig} className="h-[250px] sm:h-[350px] w-full min-w-0">
                 {maintenanceChartType === "bar" ? (
                   <BarChart data={maintenanceTrends}>
                     <CartesianGrid strokeDasharray="3 3" />
