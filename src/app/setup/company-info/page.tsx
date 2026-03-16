@@ -693,7 +693,7 @@ export default function CompanyInfoPage() {
                 </div>
               </CardContent>
             </Card>
-        </main>
+          </main>
       </SidebarInset>
     </SidebarProvider>
   )
