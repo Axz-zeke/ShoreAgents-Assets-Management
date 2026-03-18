@@ -125,6 +125,7 @@ export default function CheckoutPage() {
   const [isCameraScanning, setIsCameraScanning] = useState(false)
   const [showUnrecognizedQrDialog, setShowUnrecognizedQrDialog] = useState(false)
   const [unrecognizedQrData, setUnrecognizedQrData] = useState<string>('')
+  const [activeFacingMode, setActiveFacingMode] = useState<"environment" | "user">("environment")
   const [activeSetupTab, setActiveSetupTab] = useState<"All" | "Onsite" | "Perma WFH" | "Temp WFH">("All")
 
   // Get available assets from the loaded assets
@@ -449,57 +450,83 @@ export default function CheckoutPage() {
     let isMounted = true;
 
     if (isQrScannerOpen && isCameraScanning) {
-      const timer = setTimeout(() => {
-        if (!isMounted) return;
-        import('html5-qrcode').then(({ Html5Qrcode }) => {
+      const startScanner = async () => {
+        try {
+          const { Html5Qrcode } = await import('html5-qrcode');
           if (!isMounted) return;
+          
           const element = document.getElementById("qr-reader");
           if (!element) return;
 
+          // Clear any existing scanner instances
+          try {
+            const existingElement = document.getElementById("qr-reader");
+            if (existingElement) existingElement.innerHTML = "";
+          } catch (e) {}
+
           scanner = new Html5Qrcode("qr-reader");
           
-          Html5Qrcode.getCameras().then(cameras => {
-            if (!isMounted) return;
-            if (cameras && cameras.length > 0) {
-              const config = { facingMode: "environment" };
-              
-              scanner.start(
-                config,
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText: string) => {
-                  try { if (scanner.getState() === 2) scanner.stop(); } catch(e) {}
-                  handleQrScan(decodedText);
-                },
-                (error: any) => {
-                  const msg = typeof error === 'string' ? error : error?.message || '';
-                  if (!msg.includes('No MultiFormat Readers') && !msg.includes('NotFoundException')) {
-                    console.log('Scan error:', msg);
-                  }
-                }
-              ).catch((err: any) => {
-                if (!isMounted) return;
-                console.error("Failed to start QR scanner:", err);
-                const msg = err?.message || err || '';
-                toast.error("Camera Error", {
-                  description: typeof msg === 'string' ? msg : "Check camera permissions."
-                });
-                setIsQrScannerOpen(false);
-              });
-            } else {
-              toast.error("No camera found", {
-                description: "No cameras detected on this device."
-              });
-              setIsQrScannerOpen(false);
-            }
-          }).catch(err => {
-            console.error("Camera access error:", err);
-            toast.error("Camera Access Denied", {
-              description: "Please allow camera access in your browser."
-            });
-            setIsQrScannerOpen(false);
+          const cameras = await Html5Qrcode.getCameras().catch((err: any) => {
+            console.error("Error getting cameras:", err);
+            return [];
           });
-        }).catch(console.error);
-      }, 500);
+          
+          if (!isMounted) return;
+
+          const qrConfig = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0 
+          };
+
+          try {
+            await scanner.start(
+              { facingMode: activeFacingMode },
+              qrConfig,
+              (decodedText: string) => {
+                if (scanner && scanner.getState() === 2) {
+                  scanner.stop().catch(() => {}).finally(() => {
+                    handleQrScan(decodedText);
+                  });
+                }
+              },
+              (errorMessage: string) => {
+                if (errorMessage.includes('No MultiFormat Readers') || 
+                    errorMessage.includes('NotFoundException')) {
+                  return;
+                }
+              }
+            );
+          } catch (err: any) {
+            console.warn("Retrying with fallback constraints due to:", err);
+            if (isMounted) {
+              await scanner.start(
+                { facingMode: "user" },
+                qrConfig,
+                (decodedText: string) => {
+                  if (scanner && scanner.getState() === 2) {
+                    scanner.stop().catch(() => {}).finally(() => {
+                      handleQrScan(decodedText);
+                    });
+                  }
+                },
+                () => {}
+              );
+            }
+          }
+        } catch (err: any) {
+          if (!isMounted) return;
+          console.error("Scanner failed completely:", err);
+          toast.error("Scanner Error", {
+            description: "Could not access camera. Please check permissions."
+          });
+          setIsQrScannerOpen(false);
+        }
+      };
+
+      const timer = setTimeout(() => {
+        if (isMounted) startScanner();
+      }, 300);
 
       return () => {
         isMounted = false;
@@ -507,17 +534,24 @@ export default function CheckoutPage() {
         if (scanner) {
           try {
             if (scanner.getState() === 2) {
-              scanner.stop().catch(console.error);
+              scanner.stop().catch(console.error).finally(() => {
+                try { scanner.clear(); } catch(e) {}
+              });
             } else {
               scanner.clear();
             }
           } catch(e) {
-            console.error(e);
+            console.error("Scanner cleanup error:", e);
           }
         }
       };
     }
-  }, [isQrScannerOpen, isCameraScanning])
+  }, [isQrScannerOpen, isCameraScanning, activeFacingMode]);
+
+  const toggleCamera = () => {
+    setActiveFacingMode(prev => prev === "environment" ? "user" : "environment")
+    toast.info("Switching camera...", { duration: 1000 })
+  }
 
   const onSubmit = async (data: CheckoutFormValues) => {
     if (selectedAssets.length === 0) {
@@ -1107,7 +1141,16 @@ export default function CheckoutPage() {
                   Point your camera at the asset QR code
                 </DialogDescription>
               </DialogHeader>
-              <div id="qr-reader" className="w-full aspect-square overflow-hidden rounded-xl bg-black border border-white/10 shadow-inner" />
+              <div 
+                id="qr-reader" 
+                className="w-full aspect-square overflow-hidden rounded-xl bg-black border border-white/10 shadow-inner cursor-pointer" 
+                onDoubleClick={toggleCamera}
+              />
+              <div className="mt-4 flex flex-col items-center gap-2">
+                <p className="text-[10px] text-muted-foreground/60 font-medium uppercase tracking-widest animate-pulse text-center">
+                  Double-click screen to flip camera
+                </p>
+              </div>
               <div className="mt-6 flex justify-center">
                 <Button
                   variant="outline"

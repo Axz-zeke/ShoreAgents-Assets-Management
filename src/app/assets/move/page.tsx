@@ -172,6 +172,7 @@ export default function MoveAssetPage() {
   const [showUnrecognizedQrDialog, setShowUnrecognizedQrDialog] = useState(false)
   const [unrecognizedQrData, setUnrecognizedQrData] = useState('')
   const [scannedAssetId, setScannedAssetId] = useState<string | null>(null)
+  const [activeFacingMode, setActiveFacingMode] = useState<"environment" | "user">("environment")
 
   // Confirmation state
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -396,49 +397,68 @@ export default function MoveAssetPage() {
           const element = document.getElementById("qr-reader");
           if (!element) return;
 
-          html5QrCode = new Html5Qrcode("qr-reader");
-          
-          const cameras = await Html5Qrcode.getCameras().catch(() => []);
-          if (!isMounted) return;
+          // Clear any existing scanner instances
+          try {
+            const existingElement = document.getElementById("qr-reader");
+            if (existingElement) existingElement.innerHTML = "";
+          } catch (e) {}
 
-          if (cameras && cameras.length > 0) {
-            const config = { facingMode: "environment" };
-            
+          html5QrCode = new Html5Qrcode("qr-reader");
+
+          const qrConfig = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0 
+          };
+
+          try {
             await html5QrCode.start(
-              config,
-              { fps: 10, qrbox: { width: 250, height: 250 } },
+              { facingMode: activeFacingMode },
+              qrConfig,
               (decodedText: string) => {
-                try { if (html5QrCode.getState() === 2) html5QrCode.stop(); } catch(e) {}
-                handleQrScan(decodedText);
+                if (html5QrCode && html5QrCode.getState() === 2) {
+                  html5QrCode.stop().catch(() => {}).finally(() => {
+                    handleQrScan(decodedText);
+                  });
+                }
               },
-              (error: any) => {
-                const msg = typeof error === 'string' ? error : error?.message || '';
-                if (!msg.includes('No MultiFormat Readers') && !msg.includes('NotFoundException')) {
-                  console.log('Scan error:', msg);
+              (errorMessage: string) => {
+                if (errorMessage.includes('No MultiFormat Readers') || 
+                    errorMessage.includes('NotFoundException')) {
+                  return;
                 }
               }
             );
-          } else {
-            toast.error("No camera found", {
-              description: "No cameras detected on this device."
-            });
-            setIsQrScannerOpen(false);
+          } catch (err: any) {
+            console.warn("Retrying with fallback constraints due to:", err);
+            if (isMounted) {
+              await html5QrCode.start(
+                { facingMode: activeFacingMode === "environment" ? "user" : "environment" },
+                qrConfig,
+                (decodedText: string) => {
+                  if (html5QrCode && html5QrCode.getState() === 2) {
+                    html5QrCode.stop().catch(() => {}).finally(() => {
+                      handleQrScan(decodedText);
+                    });
+                  }
+                },
+                () => {}
+              );
+            }
           }
         } catch (err: any) {
           if (!isMounted) return;
-          console.error("Scanner failed to start:", err);
-          const msg = err?.message || err || '';
-          toast.error("Camera Error", {
-            description: typeof msg === 'string' ? msg : "Check camera permissions."
+          console.error("Scanner failed completely:", err);
+          toast.error("Scanner Error", {
+            description: "Could not access camera. Please check permissions."
           });
           setIsQrScannerOpen(false);
         }
       };
 
-      // Delay to ensure the DOM element is rendered
       const timer = setTimeout(() => {
-        startScanner();
-      }, 500);
+        if (isMounted) startScanner();
+      }, 300);
 
       return () => {
         isMounted = false;
@@ -446,17 +466,24 @@ export default function MoveAssetPage() {
         if (html5QrCode) {
           try {
             if (html5QrCode.getState() === 2) {
-              html5QrCode.stop().catch(console.error);
+              html5QrCode.stop().catch(console.error).finally(() => {
+                try { html5QrCode.clear(); } catch(e) {}
+              });
             } else {
               html5QrCode.clear();
             }
           } catch(e) {
-            console.error(e);
+            console.error("Scanner cleanup error:", e);
           }
         }
       };
     }
-  }, [isQrScannerOpen, isCameraScanning])
+  }, [isQrScannerOpen, isCameraScanning, activeFacingMode]);
+
+  const toggleCamera = () => {
+    setActiveFacingMode(prev => prev === "environment" ? "user" : "environment")
+    toast.info("Switching camera...", { duration: 1000 })
+  }
 
   const handleQrFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -1187,7 +1214,16 @@ export default function MoveAssetPage() {
                   Point your camera at the asset QR code
                 </DialogDescription>
               </DialogHeader>
-              <div id="qr-reader" className="w-full aspect-square overflow-hidden rounded-xl bg-black border border-white/10 relative shadow-inner" />
+              <div 
+                id="qr-reader" 
+                className="w-full aspect-square overflow-hidden rounded-xl bg-black border border-white/10 relative shadow-inner cursor-pointer" 
+                onDoubleClick={toggleCamera}
+              />
+              <div className="mt-4 flex flex-col items-center gap-2">
+                <p className="text-[10px] text-muted-foreground/60 font-medium uppercase tracking-widest animate-pulse text-center">
+                  Double-click screen to flip camera
+                </p>
+              </div>
               <div className="mt-6 flex justify-center">
                 <Button
                   variant="outline"
