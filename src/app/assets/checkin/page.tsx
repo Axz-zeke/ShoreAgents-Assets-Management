@@ -277,39 +277,69 @@ export default function CheckinPage() {
   // Camera Scanner Setup
   useEffect(() => {
     let html5QrCode: any = null
+    let isMounted = true
 
     if (isScannerOpen) {
       const startScanner = async () => {
         try {
           const { Html5Qrcode } = await import('html5-qrcode')
-          html5QrCode = new Html5Qrcode("qr-reader")
+          
+          if (!isMounted) return
+          const element = document.getElementById("qr-reader");
+          if (!element) return;
 
-          await html5QrCode.start(
-            { facingMode: "environment" },
-            {
-              fps: 10,
-              qrbox: { width: 250, height: 250 },
-            },
-            (decodedText: string) => {
-              handleQrScan(decodedText)
-            },
-            () => {
-              // Ignore scan errors
-            }
-          )
-        } catch (err) {
+          html5QrCode = new Html5Qrcode("qr-reader")
+          
+          const cameras = await Html5Qrcode.getCameras().catch(() => [])
+          if (!isMounted) return
+          
+          if (cameras && cameras.length > 0) {
+            const config = { facingMode: "environment" };
+            
+            await html5QrCode.start(
+              config,
+              { fps: 10, qrbox: { width: 250, height: 250 } },
+              (decodedText: string) => {
+                try { if (html5QrCode.getState() === 2) html5QrCode.stop() } catch(e) {}
+                handleQrScan(decodedText)
+              },
+              (error: any) => {
+                const msg = typeof error === 'string' ? error : error?.message || '';
+                if (!msg.includes('No MultiFormat Readers') && !msg.includes('NotFoundException')) {
+                  console.log('Scan error:', msg);
+                }
+              }
+            )
+          } else {
+            toast.error("No camera found", { description: "No cameras detected on this device." })
+            setIsScannerOpen(false)
+          }
+        } catch (err: any) {
+          if (!isMounted) return
           console.error("Scanner failed to start:", err)
-          toast.error("Could not access camera")
+          const msg = err?.message || err || ''
+          toast.error("Camera Error", { description: typeof msg === 'string' ? msg : "Could not access camera" })
           setIsScannerOpen(false)
         }
       }
 
-      startScanner()
-    }
+      // Small delay to allow dialog to animate and DOM to exist
+      const timer = setTimeout(() => {
+        startScanner()
+      }, 500)
 
-    return () => {
-      if (html5QrCode && html5QrCode.isScanning) {
-        html5QrCode.stop().catch((err: any) => console.error("Error stopping scanner:", err))
+      return () => {
+        isMounted = false
+        clearTimeout(timer)
+        if (html5QrCode) {
+          try {
+            if (html5QrCode.getState() === 2) {
+              html5QrCode.stop().catch(console.error)
+            } else {
+              html5QrCode.clear()
+            }
+          } catch(e) {}
+        }
       }
     }
   }, [isScannerOpen])

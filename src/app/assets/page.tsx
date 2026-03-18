@@ -770,32 +770,77 @@ export default function AssetsPage() {
 
   // QR Scanner setup
   React.useEffect(() => {
-    if (isQrScannerOpen && isCameraScanning) {
-      // Dynamically import html5-qrcode to avoid SSR issues
-      import('html5-qrcode').then((Html5QrcodeScanner) => {
-        const html5QrCode = new Html5QrcodeScanner.Html5QrcodeScanner(
-          "qr-reader",
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0
-          },
-          false
-        )
+    let html5QrCode: any = null;
+    let isMounted = true;
 
-        html5QrCode.render(
-          (decodedText: string) => {
-            handleQrScan(decodedText)
-            html5QrCode.clear()
-          },
-          (errorMessage: string) => {
-            // Handle scan error
-            console.log('QR scan error:', errorMessage)
+    if (isQrScannerOpen && isCameraScanning) {
+      const startScanner = async () => {
+        try {
+          const { Html5Qrcode } = await import('html5-qrcode');
+          if (!isMounted) return;
+          
+          const element = document.getElementById("qr-reader");
+          if (!element) return;
+
+          html5QrCode = new Html5Qrcode("qr-reader");
+          
+          const cameras = await Html5Qrcode.getCameras().catch(() => []);
+          if (!isMounted) return;
+
+          if (cameras && cameras.length > 0) {
+            const config = { facingMode: "environment" };
+            
+            await html5QrCode.start(
+              config,
+              { fps: 10, qrbox: { width: 250, height: 250 } },
+              (decodedText: string) => {
+                try { if (html5QrCode.getState() === 2) html5QrCode.stop(); } catch(e) {}
+                handleQrScan(decodedText);
+              },
+              (error: any) => {
+                const msg = typeof error === 'string' ? error : error?.message || '';
+                if (!msg.includes('No MultiFormat Readers') && !msg.includes('NotFoundException')) {
+                  console.log('Scan error:', msg);
+                }
+              }
+            );
+          } else {
+            toast.error("No camera found", {
+              description: "No cameras detected on this device."
+            });
+            setIsQrScannerOpen(false);
           }
-        )
-      }).catch((error) => {
-        console.error('Failed to load QR scanner:', error)
-      })
+        } catch (err: any) {
+          if (!isMounted) return;
+          console.error("Scanner failed to start:", err);
+          const msg = err?.message || err || '';
+          toast.error("Camera Error", {
+            description: typeof msg === 'string' ? msg : "Check camera permissions."
+          });
+          setIsQrScannerOpen(false);
+        }
+      };
+
+      // Delay to ensure the DOM element is rendered
+      const timer = setTimeout(() => {
+        startScanner();
+      }, 500);
+
+      return () => {
+        isMounted = false;
+        clearTimeout(timer);
+        if (html5QrCode) {
+          try {
+            if (html5QrCode.getState() === 2) {
+              html5QrCode.stop().catch(console.error);
+            } else {
+              html5QrCode.clear();
+            }
+          } catch(e) {
+            console.error(e);
+          }
+        }
+      };
     }
   }, [isQrScannerOpen, isCameraScanning])
 

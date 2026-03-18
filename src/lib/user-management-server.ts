@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
-import type { UserType, UserProfile } from "./user-management"
+import { supabaseAdmin } from "@/lib/supabase/admin"
+import type { UserProfile } from "./user-management"
 
 /**
  * Server-side: Get the current user's profile including user_type
+ * Uses supabaseAdmin to avoid infinite recursion in RLS policies
  */
 export async function getCurrentUserProfileServer(): Promise<UserProfile | null> {
   const supabase = await createClient()
@@ -10,7 +12,9 @@ export async function getCurrentUserProfileServer(): Promise<UserProfile | null>
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
   
-  const { data, error } = await supabase
+  // Use supabaseAdmin to fetch the profile to bypass RLS policies
+  // that might otherwise cause infinite recursion during authorization checks
+  const { data, error } = await supabaseAdmin
     .from('users')
     .select('*')
     .eq('id', user.id)

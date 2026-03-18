@@ -446,42 +446,74 @@ export default function CheckoutPage() {
 
   React.useEffect(() => {
     let scanner: any = null;
+    let isMounted = true;
 
     if (isQrScannerOpen && isCameraScanning) {
-      // Use a small delay to ensure the DOM element is rendered
       const timer = setTimeout(() => {
+        if (!isMounted) return;
         import('html5-qrcode').then(({ Html5Qrcode }) => {
+          if (!isMounted) return;
           const element = document.getElementById("qr-reader");
           if (!element) return;
 
           scanner = new Html5Qrcode("qr-reader");
-          scanner.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            (decodedText: string) => {
-              scanner.stop().then(() => {
-                handleQrScan(decodedText);
-              }).catch(console.error);
-            },
-            (error: any) => {
-              // Ignore frequent "No QR code found" errors
-              const msg = typeof error === 'string' ? error : error?.message || '';
-              if (!msg.includes('No MultiFormat Readers')) {
-                console.log('Scan error:', error);
-              }
+          
+          Html5Qrcode.getCameras().then(cameras => {
+            if (!isMounted) return;
+            if (cameras && cameras.length > 0) {
+              const config = { facingMode: "environment" };
+              
+              scanner.start(
+                config,
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText: string) => {
+                  try { if (scanner.getState() === 2) scanner.stop(); } catch(e) {}
+                  handleQrScan(decodedText);
+                },
+                (error: any) => {
+                  const msg = typeof error === 'string' ? error : error?.message || '';
+                  if (!msg.includes('No MultiFormat Readers') && !msg.includes('NotFoundException')) {
+                    console.log('Scan error:', msg);
+                  }
+                }
+              ).catch((err: any) => {
+                if (!isMounted) return;
+                console.error("Failed to start QR scanner:", err);
+                const msg = err?.message || err || '';
+                toast.error("Camera Error", {
+                  description: typeof msg === 'string' ? msg : "Check camera permissions."
+                });
+                setIsQrScannerOpen(false);
+              });
+            } else {
+              toast.error("No camera found", {
+                description: "No cameras detected on this device."
+              });
+              setIsQrScannerOpen(false);
             }
-          ).catch((err: any) => {
-            console.error("Failed to start QR scanner:", err);
-            toast.error("Camera access denied or device error");
+          }).catch(err => {
+            console.error("Camera access error:", err);
+            toast.error("Camera Access Denied", {
+              description: "Please allow camera access in your browser."
+            });
             setIsQrScannerOpen(false);
           });
         }).catch(console.error);
-      }, 300);
+      }, 500);
 
       return () => {
+        isMounted = false;
         clearTimeout(timer);
-        if (scanner && scanner.isScanning) {
-          scanner.stop().catch(console.error);
+        if (scanner) {
+          try {
+            if (scanner.getState() === 2) {
+              scanner.stop().catch(console.error);
+            } else {
+              scanner.clear();
+            }
+          } catch(e) {
+            console.error(e);
+          }
         }
       };
     }
